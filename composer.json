@@ -1,0 +1,64 @@
+{
+    "name": "solomon-ochepa/laravel-settings",
+    "description": "Store settings as key-value pairs in the database.",
+    "homepage": "https://github.com/solomon-ochepa/laravel-settings",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "laravel-settings",
+        "laravel-settable",
+        "laravel-user-settings",
+        "key-value-settings",
+        "settings",
+        "laravel",
+        "eloquent",
+        "solomon-ochepa",
+        "oki"
+    ],
+    "authors": [
+        {
+            "name": "Solomon Oki Ochepa",
+            "email": "solomonochepa@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.3|^8.0|^8.1|^8.2",
+        "laravel/framework": "^6.0|^7.0|^8.0|^9.0|^10.0|^11.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "4.*|5.*|6.*|^8.0|^9.0",
+        "mockery/mockery": "^0.9.4 || ~1.0",
+        "phpunit/phpunit": "^8.5|^9.5.10|^10.5",
+        "laravel/pint": "^1.16"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-4": {
+            "Oki\\Settings\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Oki\\Settings\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Oki\\Settings\\SettingsServiceProvider"
+            ],
+            "aliases": {
+                "Settings": "Oki\\Settings\\Facades\\Settings"
+            }
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    }
+}
