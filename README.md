@@ -67,6 +67,14 @@ settings()->get($key, $default = null);
 Settings::get($key, $default = null);
 ```
 
+#### `my()`
+Get the `auth()` user settings.
+```php
+settings()->my($key, $default = null);
+// or
+Settings::my($key, $default = null);
+```
+
 #### `set()`
 Set a specific setting
 ```php
@@ -108,20 +116,22 @@ settings()->remove($key);
 Settings::remove($key);
 ```
 ## For
-You can create settings for a specific entity
+Get/set settings for a specific entity
 ```php
 Settings::for($settable_type, $settable_id = null)->set($key, $value)
 // or
 Settings::set($key, $value = null, $settable_type = null, $settable_id = null)
+
 // helper function
+settings()->for($settable_type = null, $settable_id = null)->set($key, $value = null)
+// or
 settings()->set($key, $value = null, $settable_type = null, $settable_id = null)
 
 // Example:
-Settings::for(User::class, auth()->id())->set('theme_mode', 'dark')
+settings()->for(User::class, auth()->id())->set('theme_mode', 'dark');
 ```
 
 ## Groups
-
 You can organize your settings into groups.
 
 > If you are upgrading from a previous version, don't forget to run the migration.
