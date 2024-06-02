@@ -115,7 +115,23 @@ settings()->remove($key);
 // or
 Settings::remove($key);
 ```
-## For
+
+## Groups
+You can organize your settings into groups.
+
+> If you are upgrading from a previous version, don't forget to run the migration.
+
+Initiate grouping by chaining the `group()` method:
+
+```php
+// Save setting
+settings([$key => $value])->group($name);
+
+// Get setting
+settings($key)->group($name);
+```
+
+## Settable `for()`
 Get/set settings for a specific entity
 ```php
 Settings::for($settable_type, $settable_id = null)->set($key, $value)
@@ -131,19 +147,10 @@ settings()->set($key, $value = null, $settable_type = null, $settable_id = null)
 settings()->for(User::class, auth()->id())->set('theme_mode', 'dark');
 ```
 
-## Groups
-You can organize your settings into groups.
-
-> If you are upgrading from a previous version, don't forget to run the migration.
-
-Initiate grouping by chaining the `group()` method:
-
+## Settable `user()`
+Bind settings to the auth user.
 ```php
-// Save setting
-settings([$key => $value])->group($name);
-
-// Get setting
-settings($key)->group($name);
+settings()->user()->all();
 ```
 
 ## Changelog
