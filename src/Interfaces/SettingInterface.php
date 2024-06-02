@@ -17,6 +17,11 @@ interface SettingInterface
     public function get(string $key, mixed $default = null, bool $cached = true): mixed;
 
     /**
+     * Get settings for the auth user from storage by key.
+     */
+    public function my(string $key, mixed $default = null, bool $cached = true): mixed;
+
+    /**
      * Save a setting in storage.
      */
     public function set(string $key, mixed $value = null, ?string $settable_type = null, $settable_id = null): mixed;

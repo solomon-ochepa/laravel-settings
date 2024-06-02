@@ -3,6 +3,7 @@
 namespace Oki\Settings\Repositories;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -47,6 +48,16 @@ class SettingRepository implements SettingInterface
      */
     public function get(string $key, mixed $default = null, bool $cached = true): mixed
     {
+        return $this->all($cached)->get($key, $default);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function my(string $key, mixed $default = null, bool $cached = true): mixed
+    {
+        $this->for(User::class, auth()->id());
+
         return $this->all($cached)->get($key, $default);
     }
 
