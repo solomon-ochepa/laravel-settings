@@ -19,7 +19,7 @@ return [
      */
     'columns' => [
         'name' => env('SETTINGS_COLUMNS_NAME', 'name'),
-        'value' => env('SETTINGS_COLUMNS_VALUE', 'val'),
+        'value' => env('SETTINGS_COLUMNS_VALUE', 'value'),
     ],
 
     'cache' => [
