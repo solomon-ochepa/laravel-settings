@@ -21,9 +21,9 @@ class SettingRepository implements SettingInterface
      */
     protected string $settingsCacheKey = 'app_settings';
 
-    protected string $settable_type = '';
+    protected ?string $settable_type = null;
 
-    protected mixed $settable_id = '';
+    protected mixed $settable_id = null;
 
     /**
      * {@inheritdoc}
@@ -62,11 +62,11 @@ class SettingRepository implements SettingInterface
     /**
      * {@inheritdoc}
      */
-    public function set(string|array $key, mixed $value = null, ?string $settable_type = null, $settable_id = null): mixed
+    public function set(string|array $key, mixed $value = null): mixed
     {
         if (is_array($key)) {
             foreach ($key as $key => $value) {
-                $this->set($key, $value, $settable_type, $settable_id);
+                $this->set($key, $value);
             }
 
             return true;
@@ -76,8 +76,8 @@ class SettingRepository implements SettingInterface
             'name' => $key,
             'group' => $this->settingsGroupName,
             // for
-            'settable_type' => $this->settable_type ?? $settable_type,
-            'settable_id' => $this->settable_id ?? $settable_id,
+            'settable_type' => $this->settable_type,
+            'settable_id' => $this->settable_id,
         ]);
 
         $setting->value = $value;
