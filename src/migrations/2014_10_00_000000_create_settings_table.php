@@ -12,7 +12,7 @@ class CreateSettingsTable extends Migration
     public function up(): void
     {
         Schema::create('settings', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->string('name');
             $table->text('value')->nullable();
             $table->string('group')->default('default');
