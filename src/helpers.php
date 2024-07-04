@@ -1,23 +1,21 @@
 <?php
 
-use Illuminate\Support\Arr;
-
 if (! function_exists('settings')) {
     /**
      * Get setting(s) from the database or add a new one if an array is passed.
      */
     function settings(null|string|array $key = null, $default = null): mixed
     {
-        $setting = app()->make('Oki\Settings\Interfaces\SettingInterface');
+        $settings = app()->make('Oki\Settings\Interfaces\SettingInterface');
 
         if (is_null($key)) {
-            return $setting;
+            return $settings;
         }
 
         if (is_array($key)) {
-            return $setting->set($key);
+            return $settings->add($key);
         } else {
-            return $setting->get($key, value($default));
+            return $settings->get($key, value($default));
         }
     }
 }
