@@ -11,19 +11,13 @@ use Oki\Settings\Interfaces\SettingInterface;
 
 class SettingRepository implements SettingInterface
 {
-    /**
-     * Group name.
-     */
-    protected string $settingsGroupName = 'default';
+    protected string $group = 'default';
 
-    /**
-     * Cache key.
-     */
-    protected string $settingsCacheKey = 'app_settings';
+    protected string $cache_key = 'settings';
 
-    protected string $settable_type = '';
+    protected ?string $settable_type = null;
 
-    protected mixed $settable_id = '';
+    protected mixed $settable_id = null;
 
     /**
      * {@inheritdoc}
@@ -62,11 +56,11 @@ class SettingRepository implements SettingInterface
     /**
      * {@inheritdoc}
      */
-    public function set(string|array $key, mixed $value = null, ?string $settable_type = null, $settable_id = null): mixed
+    public function set(string|array $key, mixed $value = null): mixed
     {
         if (is_array($key)) {
             foreach ($key as $key => $value) {
-                $this->set($key, $value, $settable_type, $settable_id);
+                $this->set($key, $value);
             }
 
             return true;
@@ -74,10 +68,10 @@ class SettingRepository implements SettingInterface
 
         $setting = $this->getSettingModel()->firstOrNew([
             'name' => $key,
-            'group' => $this->settingsGroupName,
-            // for
-            'settable_type' => $this->settable_type ?? $settable_type,
-            'settable_id' => $this->settable_id ?? $settable_id,
+        ], [
+            'group' => $this->group,
+            'settable_type' => $this->settable_type,
+            'settable_id' => $this->settable_id,
         ]);
 
         $setting->value = $value;
@@ -146,7 +140,7 @@ class SettingRepository implements SettingInterface
      */
     protected function getSettingsCacheKey(): string
     {
-        return $this->settingsCacheKey.'.'.$this->settingsGroupName;
+        return $this->cache_key.'.'.$this->group;
     }
 
     /**
@@ -167,7 +161,7 @@ class SettingRepository implements SettingInterface
     protected function modelQuery()
     {
         return $this->getSettingModel()
-            ->group($this->settingsGroupName)
+            ->group($this->group)
             ->for($this->settable_type, $this->settable_id);
     }
 
@@ -176,7 +170,7 @@ class SettingRepository implements SettingInterface
      */
     public function group(string $groupName): self
     {
-        $this->settingsGroupName = $groupName;
+        $this->group = $groupName;
 
         return $this;
     }

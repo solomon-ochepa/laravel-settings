@@ -24,7 +24,7 @@ interface SettingInterface
     /**
      * Save a setting in storage.
      */
-    public function set(string $key, mixed $value = null, ?string $settable_type = null, $settable_id = null): mixed;
+    public function set(string $key, mixed $value = null): mixed;
 
     /**
      * Check if setting with key exists.
