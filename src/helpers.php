@@ -15,13 +15,9 @@ if (! function_exists('settings')) {
         }
 
         if (is_array($key)) {
-            if (is_array(Arr::first($key))) {
-                return $setting->set($key);
-            }
-
-            return $setting->set($key[config('settings.columns.name')], $key[config('settings.columns.value')] ?? null);
+            return $setting->set($key);
+        } else {
+            return $setting->get($key, value($default));
         }
-
-        return $setting->get($key, value($default));
     }
 }
