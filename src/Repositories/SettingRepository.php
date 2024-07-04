@@ -40,14 +40,6 @@ class SettingRepository implements SettingInterface
     /**
      * {@inheritdoc}
      */
-    public function get(string $key, mixed $default = null, bool $cached = true): mixed
-    {
-        return $this->all($cached)->get($key, $default);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function my(string $key, mixed $default = null, bool $cached = true): mixed
     {
         $this->user()->get($key, $default);
@@ -56,7 +48,15 @@ class SettingRepository implements SettingInterface
     /**
      * {@inheritdoc}
      */
-    public function set(string|array $key, mixed $value = null): mixed
+    public function get(string $key, mixed $default = null, bool $cached = true): mixed
+    {
+        return $this->all($cached)->get($key, $default);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function add(string|array $key, mixed $value = null): mixed
     {
         if (is_array($key)) {
             foreach ($key as $key => $value) {
@@ -81,6 +81,14 @@ class SettingRepository implements SettingInterface
         $this->flush();
 
         return $value;
+    }
+
+    /**
+     * @deprecated 1.2.2 use `add(string|array $key, mixed $value = null)`
+     */
+    public function set(string|array $key, mixed $value = null): mixed
+    {
+        return $this->add($key, $value);
     }
 
     /**

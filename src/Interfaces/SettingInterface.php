@@ -12,19 +12,19 @@ interface SettingInterface
     public function all(bool $cached = true): Collection;
 
     /**
-     * Get a setting from storage by key.
-     */
-    public function get(string $key, mixed $default = null, bool $cached = true): mixed;
-
-    /**
      * Get settings for the auth() user.
      */
     public function my(string $key, mixed $default = null, bool $cached = true): mixed;
 
     /**
+     * Get a setting from storage by key.
+     */
+    public function get(string $key, mixed $default = null, bool $cached = true): mixed;
+
+    /**
      * Save a setting in storage.
      */
-    public function set(string $key, mixed $value = null): mixed;
+    public function add(string $key, mixed $value = null): mixed;
 
     /**
      * Check if setting with key exists.
