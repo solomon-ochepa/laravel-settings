@@ -13,11 +13,19 @@ class SettingRepository implements SettingInterface
 {
     protected string $group = 'default';
 
+    protected array $columns = [];
+
     protected string $cache_key = 'settings';
 
     protected ?string $settable_type = null;
 
     protected mixed $settable_id = null;
+
+    public function __construct()
+    {
+        $this->columns['name'] = config('settings.columns.name', 'name');
+        $this->columns['value'] = config('settings.columns.value', 'value');
+    }
 
     /**
      * {@inheritdoc}
@@ -29,11 +37,11 @@ class SettingRepository implements SettingInterface
         }
 
         if ($cached) {
-            return $this->modelQuery()->pluck('value', 'name');
+            return $this->modelQuery()->pluck($this->columns['value'], $this->columns['name']);
         }
 
-        return Cache::rememberForever($this->getSettingsCacheKey(), function () {
-            return $this->modelQuery()->pluck('value', 'name');
+        return Cache::rememberForever($this->cache_key(), function () {
+            return $this->modelQuery()->pluck($this->columns['value'], $this->columns['name']);
         });
     }
 
@@ -60,14 +68,14 @@ class SettingRepository implements SettingInterface
     {
         if (is_array($key)) {
             foreach ($key as $key => $value) {
-                $this->set($key, $value);
+                $this->add($key, $value);
             }
 
             return true;
         }
 
-        $setting = $this->getSettingModel()->firstOrNew([
-            'name' => $key,
+        $setting = $this->model()->firstOrNew([
+            $this->columns['name'] => $key,
         ], [
             'group' => $this->group,
             'settable_type' => $this->settable_type,
@@ -104,7 +112,7 @@ class SettingRepository implements SettingInterface
      */
     public function trash(string $key): mixed
     {
-        $trashed = $this->getSettingModel()->where('name', $key)->delete();
+        $trashed = $this->model()->where($this->columns['name'], $key)->delete();
 
         $this->flush();
 
@@ -116,7 +124,7 @@ class SettingRepository implements SettingInterface
      */
     public function restore(string $key): mixed
     {
-        $restored = $this->getSettingModel()->onlyTrashed()->where('name', $key)->restore();
+        $restored = $this->model()->onlyTrashed()->where($this->columns['name'], $key)->restore();
 
         $this->flush();
 
@@ -128,7 +136,7 @@ class SettingRepository implements SettingInterface
      */
     public function delete(string $key): mixed
     {
-        $deleted = $this->getSettingModel()->onlyTrashed()->where('name', $key)->forceDelete();
+        $deleted = $this->model()->onlyTrashed()->where($this->columns['name'], $key)->forceDelete();
 
         $this->flush();
 
@@ -140,13 +148,13 @@ class SettingRepository implements SettingInterface
      */
     public function flush(): bool
     {
-        return Cache::forget($this->getSettingsCacheKey());
+        return Cache::forget($this->cache_key());
     }
 
     /**
      * Get settings cache key.
      */
-    protected function getSettingsCacheKey(): string
+    protected function cache_key(): string
     {
         return $this->cache_key.'.'.$this->group;
     }
@@ -156,9 +164,9 @@ class SettingRepository implements SettingInterface
      *
      * @return Builder
      */
-    protected function getSettingModel()
+    protected function model()
     {
-        return app('\Oki\Settings\Models\Setting');
+        return app(config('settings.model', '\Oki\Settings\Models\Setting'));
     }
 
     /**
@@ -168,7 +176,7 @@ class SettingRepository implements SettingInterface
      */
     protected function modelQuery()
     {
-        return $this->getSettingModel()
+        return $this->model()
             ->group($this->group)
             ->for($this->settable_type, $this->settable_id);
     }
@@ -196,6 +204,6 @@ class SettingRepository implements SettingInterface
      */
     public function user(): self
     {
-        return $this->for(User::class, auth()->id());
+        return $this->for(config('settings.user.model', User::class), auth()->id());
     }
 }
