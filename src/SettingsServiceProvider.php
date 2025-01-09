@@ -1,6 +1,6 @@
 <?php
 
-namespace Oki\Settings;
+namespace SolomonOchepa\Settings;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -25,17 +25,15 @@ class SettingsServiceProvider extends ServiceProvider
 
     /**
      * Register bindings in the container.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/settings.php', 'settings');
 
         // bind Settings repository
         $this->app->bind(
-            'Oki\Settings\Interfaces\SettingInterface',
-            'Oki\Settings\Repositories\SettingRepository'
+            'SolomonOchepa\Settings\Interfaces\SettingsInterface',
+            'SolomonOchepa\Settings\Repositories\SettingsRepository'
         );
     }
 }

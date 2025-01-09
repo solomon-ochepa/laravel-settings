@@ -1,6 +1,6 @@
 <?php
 
-namespace Oki\Settings\Facades;
+namespace SolomonOchepa\Settings\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -11,6 +11,6 @@ class Settings extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'Oki\Settings\Interfaces\SettingInterface';
+        return 'SolomonOchepa\Settings\Interfaces\SettingsInterface';
     }
 }

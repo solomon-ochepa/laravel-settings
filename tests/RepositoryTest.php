@@ -1,11 +1,11 @@
 <?php
 
-namespace Oki\Settings\Tests\Feature;
+namespace SolomonOchepa\Settings\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Oki\Settings\Models\Setting;
-use Oki\Settings\Repositories\SettingRepository;
-use Oki\Settings\Tests\TestCase;
+use SolomonOchepa\Settings\Models\Setting;
+use SolomonOchepa\Settings\Repositories\SettingsRepository;
+use SolomonOchepa\Settings\Tests\TestCase;
 
 class RepositoryTest extends TestCase
 {

@@ -6,7 +6,7 @@ if (! function_exists('settings')) {
      */
     function settings(null|string|array $key = null, $default = null): mixed
     {
-        $settings = app()->make('Oki\Settings\Interfaces\SettingInterface');
+        $settings = app()->make('SolomonOchepa\Settings\Interfaces\SettingsInterface');
 
         if (is_null($key)) {
             return $settings;

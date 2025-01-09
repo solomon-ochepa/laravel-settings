@@ -22,12 +22,12 @@ If you are installing on Laravel 5.4 or lower, you will need to manually registe
 ```php
 'providers' => [
     //...
-    Oki\Settings\SettingsServiceProvider::class
+    SolomonOchepa\Settings\SettingsServiceProvider::class
 ]
 
 'aliases' => [
     //...
-    "Settings" => Oki\Settings\Facades\Settings::class
+    "Settings" => SolomonOchepa\Settings\Facades\Settings::class
 ]
 ```
 
@@ -38,7 +38,7 @@ Get started with `Settings::all()`.
 ## Migration
 Optionally, you can publish the migration file by running:
 ```
-php artisan vendor:publish --provider="Oki\Settings\SettingsServiceProvider" --tag="migrations"
+php artisan vendor:publish --provider="SolomonOchepa\Settings\SettingsServiceProvider" --tag="migrations"
 ```
 
 Now, run `php artisan migrate` to migrate the settings table.

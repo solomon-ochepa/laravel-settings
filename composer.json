@@ -17,7 +17,7 @@
     ],
     "authors": [
         {
-            "name": "Solomon Oki Ochepa",
+            "name": "Solomon Ochepa",
             "email": "solomonochepa@gmail.com",
             "role": "Developer"
         }
@@ -37,7 +37,7 @@
             "src/migrations"
         ],
         "psr-4": {
-            "Oki\\Settings\\": "src/"
+            "SolomonOchepa\\Settings\\": "src/"
         },
         "files": [
             "src/helpers.php"
@@ -45,16 +45,16 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Oki\\Settings\\Tests\\": "tests/"
+            "SolomonOchepa\\Settings\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Oki\\Settings\\SettingsServiceProvider"
+                "SolomonOchepa\\Settings\\SettingsServiceProvider"
             ],
             "aliases": {
-                "Settings": "Oki\\Settings\\Facades\\Settings"
+                "Settings": "SolomonOchepa\\Settings\\Facades\\Settings"
             }
         }
     },
