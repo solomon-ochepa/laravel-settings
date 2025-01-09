@@ -11,13 +11,13 @@ class RepositoryTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected SettingRepository $settings;
+    protected SettingsRepository $settings;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->settings = new SettingRepository();
+        $this->settings = new SettingsRepository;
     }
 
     /**
@@ -29,7 +29,7 @@ class RepositoryTest extends TestCase
     {
         $this->assertDatabaseMissing('settings', ['app_name' => 'Laravel']);
 
-        $this->settings->set('app_name', 'Laravel');
+        $this->settings->add('app_name', 'Laravel');
 
         $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => 'Laravel']);
     }
@@ -43,13 +43,13 @@ class RepositoryTest extends TestCase
     {
         $this->assertDatabaseMissing('settings', ['app_name' => 'Laravel']);
 
-        $this->settings->set('app_name', 'Laravel');
-        $this->settings->set('app_name', 'Laravel');
+        $this->settings->add('app_name', 'Laravel');
+        $this->settings->add('app_name', 'Laravel');
 
         $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => 'Laravel']);
         $this->assertCount(1, $this->settings->all(true));
 
-        $this->settings->set('email_name', 'Laravel');
+        $this->settings->add('email_name', 'Laravel');
         $this->assertCount(2, $this->settings->all(true));
     }
 
@@ -60,10 +60,10 @@ class RepositoryTest extends TestCase
      */
     public function it_updates_exisiting_setting_if_already_exists()
     {
-        $this->settings->set('app_name', 'Laravel');
+        $this->settings->add('app_name', 'Laravel');
         $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => 'Laravel']);
 
-        $this->settings->set('app_name', 'Updated Laravel');
+        $this->settings->add('app_name', 'Updated Laravel');
 
         $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => 'Updated Laravel']);
         $this->assertEquals('Updated Laravel', $this->settings->get('app_name'));
@@ -76,11 +76,11 @@ class RepositoryTest extends TestCase
      */
     public function it_removes_a_setting_from_storage()
     {
-        $this->settings->set('app_name', 'Laravel');
+        $this->settings->add('app_name', 'Laravel');
         $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => 'Laravel']);
         $this->assertEquals('Laravel', $this->settings->get('app_name'));
 
-        $this->settings->remove('app_name');
+        $this->settings->delete('app_name');
 
         $this->assertDatabaseMissing('settings', ['name' => 'app_name', 'value' => 'Laravel']);
         $this->assertNull($this->settings->get('app_name'));
@@ -108,7 +108,7 @@ class RepositoryTest extends TestCase
      */
     public function it_gives_you_saved_setting_value()
     {
-        $this->settings->set('app_name', 'Laravel');
+        $this->settings->add('app_name', 'Laravel');
 
         $this->assertEquals(
             'Laravel',
@@ -116,7 +116,7 @@ class RepositoryTest extends TestCase
         );
 
         // change the setting
-        $this->settings->set('app_name', 'Changed Laravel');
+        $this->settings->add('app_name', 'Changed Laravel');
 
         $this->assertEquals(
             'Changed Laravel',
@@ -131,7 +131,7 @@ class RepositoryTest extends TestCase
      */
     public function it_can_add_multiple_settings_in_if_multi_array_is_passed()
     {
-        $this->settings->set([
+        $this->settings->add([
             'app_name' => 'Laravel',
             'app_email' => 'info@example.com',
             'app_type' => 'SaaS',
