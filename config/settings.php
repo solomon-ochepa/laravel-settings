@@ -50,4 +50,8 @@ return [
          */
         'default' => env('SETTINGS_GROUP_DEFAULT', 'default'),
     ],
+
+    'user' => [
+        'model' => null, // App\Models\User::class
+    ],
 ];
