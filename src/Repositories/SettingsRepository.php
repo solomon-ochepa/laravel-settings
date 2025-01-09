@@ -1,21 +1,21 @@
 <?php
 
-namespace Oki\Settings\Repositories;
+namespace SolomonOchepa\Settings\Repositories;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
-use Oki\Settings\Interfaces\SettingInterface;
+use SolomonOchepa\Settings\Interfaces\SettingsInterface;
 
-class SettingRepository implements SettingInterface
+class SettingsRepository implements SettingsInterface
 {
-    protected string $group = 'default';
+    protected string $group;
 
     protected array $columns = [];
 
-    protected string $cache_key = 'settings';
+    protected string $cache_key;
 
     protected ?string $settable_type = null;
 
@@ -23,34 +23,42 @@ class SettingRepository implements SettingInterface
 
     public function __construct()
     {
+        $this->group = config('settings.group.default', 'default');
         $this->columns['name'] = config('settings.columns.name', 'name');
         $this->columns['value'] = config('settings.columns.value', 'value');
+        $this->cache_key = config('settings.cache.key', 'settings');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function all(bool $cached = true): Collection
+    public function all(bool $flush = false): Collection
     {
         if (! Schema::hasTable(config('settings.table'))) {
+            if (config('app.debug', false)) {
+                session()->flash('#settings table not found.');
+            }
+
             return collect();
         }
 
-        if ($cached) {
-            return $this->modelQuery()->pluck($this->columns['value'], $this->columns['name']);
+        if ($flush) {
+            Cache::flush();
         }
 
-        return Cache::rememberForever($this->cache_key(), function () {
-            return $this->modelQuery()->pluck($this->columns['value'], $this->columns['name']);
-        });
+        if (Cache::missing($this->cache_key())) {
+            Cache::add($this->cache_key(), $this->modelQuery()->pluck($this->columns['value'], $this->columns['name']));
+        }
+
+        return Cache::get($this->cache_key());
     }
 
     /**
      * {@inheritdoc}
      */
-    public function my(string $key, mixed $default = null, bool $cached = true): mixed
+    public function my(string $key, mixed $default = null): mixed
     {
-        $this->user()->get($key, $default);
+        return $this->user()->get($key, $default);
     }
 
     /**
@@ -105,6 +113,14 @@ class SettingRepository implements SettingInterface
     public function has(string $key): bool
     {
         return $this->all()->has($key);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function missing(string $key): bool
+    {
+        return $this->all()->missing($key);
     }
 
     /**
@@ -166,7 +182,7 @@ class SettingRepository implements SettingInterface
      */
     protected function model()
     {
-        return app(config('settings.model', '\Oki\Settings\Models\Setting'));
+        return app(config('settings.model', '\SolomonOchepa\Settings\Models\Setting'));
     }
 
     /**
@@ -204,6 +220,6 @@ class SettingRepository implements SettingInterface
      */
     public function user(): self
     {
-        return $this->for(config('settings.user.model', User::class), auth()->id());
+        return $this->for(config('settings.user.model') ?? get_class(Auth::user()), Auth::id());
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace Oki\Settings\Interfaces;
+namespace SolomonOchepa\Settings\Interfaces;
 
 use Illuminate\Support\Collection;
 
-interface SettingInterface
+interface SettingsInterface
 {
     /**
      * Get all settings from storage as key value pair.
@@ -14,7 +14,7 @@ interface SettingInterface
     /**
      * Get settings for the auth() user.
      */
-    public function my(string $key, mixed $default = null, bool $cached = true): mixed;
+    public function my(string $key, mixed $default = null): mixed;
 
     /**
      * Get a setting from storage by key.
