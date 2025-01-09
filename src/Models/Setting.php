@@ -13,6 +13,13 @@ class Setting extends Model
 
     protected $guarded = ['updated_at', 'id'];
 
+    protected function casts()
+    {
+        return [
+            'value' => 'json',
+        ];
+    }
+
     public function scopeGroup($query, $groupName)
     {
         return $query->whereGroup($groupName);
