@@ -22,7 +22,7 @@ interface SettingsInterface
     public function get(string $key, mixed $default = null, bool $cached = true): mixed;
 
     /**
-     * Save a setting in storage.
+     * Save a setting in storage and return the value.
      */
     public function add(string $key, mixed $value = null): mixed;
 

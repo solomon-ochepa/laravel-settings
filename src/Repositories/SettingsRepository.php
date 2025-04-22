@@ -3,6 +3,7 @@
 namespace SolomonOchepa\Settings\Repositories;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -75,11 +76,13 @@ class SettingsRepository implements SettingsInterface
     public function add(string|array $key, mixed $value = null): mixed
     {
         if (is_array($key)) {
-            foreach ($key as $key => $value) {
-                $this->add($key, $value);
+            foreach ($key as $_key => $value) {
+                $this->add($_key, $value);
             }
 
-            return true;
+            $this->flush();
+
+            return $this->get(array_key_first($key), Arr::first($key));
         }
 
         $setting = $this->model()->firstOrNew([
