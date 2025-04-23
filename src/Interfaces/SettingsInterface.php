@@ -24,7 +24,7 @@ interface SettingsInterface
     /**
      * Save a setting in storage and return the value.
      */
-    public function add(string $key, mixed $value = null): mixed;
+    public function add(string|array $key, mixed $value = null): mixed;
 
     /**
      * Check if setting with key exists.
