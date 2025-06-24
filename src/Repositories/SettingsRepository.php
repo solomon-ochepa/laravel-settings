@@ -210,7 +210,7 @@ class SettingsRepository implements SettingsInterface
         return $this;
     }
 
-    public function for($settable_type, $settable_id = null): self
+    public function for(string $settable_type, ?string $settable_id = null): self
     {
         $this->settable_type = $settable_type;
         $this->settable_id = $settable_id;
