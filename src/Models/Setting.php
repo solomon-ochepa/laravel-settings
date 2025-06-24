@@ -35,7 +35,7 @@ class Setting extends Model
         return $query->whereGroup($name);
     }
 
-    public function scopeFor($query, string $settable_type, ?string $settable_id = null)
+    public function scopeFor($query, ?string $settable_type = null, ?string $settable_id = null)
     {
         return $query->whereSettableType($settable_type)->when($settable_id, fn ($query) => $query->whereSettableId($settable_id));
     }
