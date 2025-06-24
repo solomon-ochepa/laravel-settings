@@ -12,14 +12,14 @@ class SettingsServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load & Publish config
-        $configPath = __DIR__.'/../config/settings.php';
         $this->publishes([
-            $configPath => config_path('settings.php'),
+            __DIR__.'/../config/settings.php' => config_path('settings.php'),
         ], 'config');
 
         // Load & Publish migration
         $this->loadMigrationsFrom(__DIR__.'/migrations');
-        $this->publishes([__DIR__.'/migrations/' => database_path('/migrations/'),
+        $this->publishes([
+            __DIR__.'/migrations/' => database_path('/migrations/'),
         ], 'migrations');
     }
 
