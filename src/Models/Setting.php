@@ -2,16 +2,26 @@
 
 namespace SolomonOchepa\Settings\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Setting extends Model
 {
-    use SoftDeletes;
+    use HasUuids, SoftDeletes;
 
-    protected $table = 'settings';
+    protected $fillable = [
+        'name',
+        'value',
+        'group',
+        'settable_type',
+        'settable_id',
+    ];
 
-    protected $guarded = ['updated_at', 'id'];
+    protected $guarded = [
+        'id',
+        'updated_at',
+    ];
 
     protected function casts()
     {
@@ -20,13 +30,13 @@ class Setting extends Model
         ];
     }
 
-    public function scopeGroup($query, $groupName)
+    public function scopeGroup($query, $name)
     {
-        return $query->whereGroup($groupName);
+        return $query->whereGroup($name);
     }
 
-    public function scopeFor($query, $settable_type, $settable_id)
+    public function scopeFor($query, string $settable_type, ?string $settable_id = null)
     {
-        return $query->whereSettableType($settable_type)->whereSettableId($settable_id);
+        return $query->whereSettableType($settable_type)->when($settable_id, fn ($query) => $query->whereSettableId($settable_id));
     }
 }
