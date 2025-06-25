@@ -85,26 +85,20 @@ class SettingsRepository implements SettingsInterface
             return $this->get(array_key_first($key), Arr::first($key));
         }
 
-        $setting = $this->model()->firstOrNew([
+        $this->model()->updateOrCreate([
             $this->columns['name'] => $key,
-        ], [
             'group' => $this->group,
             'settable_type' => $this->settable_type,
             'settable_id' => $this->settable_id,
+        ], [
+            $this->columns['value'] => $value,
         ]);
-
-        $setting->value = $value;
-
-        $setting->save();
 
         $this->flush();
 
         return $value;
     }
 
-    /**
-     * @deprecated 1.2.2 use `add(string|array $key, mixed $value = null)`
-     */
     public function set(string|array $key, mixed $value = null): mixed
     {
         return $this->add($key, $value);
@@ -203,9 +197,9 @@ class SettingsRepository implements SettingsInterface
     /**
      * Set the group name for settings.
      */
-    public function group(string $groupName): self
+    public function group(string $name): self
     {
-        $this->group = $groupName;
+        $this->group = $name;
 
         return $this;
     }
