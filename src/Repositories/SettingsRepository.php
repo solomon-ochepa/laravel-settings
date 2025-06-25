@@ -205,9 +205,9 @@ class SettingsRepository implements SettingsInterface
     /**
      * Get settings cache key.
      */
-    protected function cache_key(): string
+    protected function cache_key(?string $key = null): string
     {
-        return $this->cache_key.'.'.$this->group;
+        return $this->cache_key.($this->group ? '.'.implode('_', (array) $this->group) : '').($key ? '.'.$key : '').'_';
     }
 
     /**
