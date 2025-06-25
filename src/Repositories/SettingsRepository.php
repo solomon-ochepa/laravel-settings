@@ -35,8 +35,12 @@ class SettingsRepository implements SettingsInterface
     /**
      * {@inheritdoc}
      */
-    public function group(string|array $name): self
+    public function group(null|string|array $name = null): self|string
     {
+        if (! $name) {
+            return $this->group;
+        }
+
         $this->group = $name;
 
         return $this;
