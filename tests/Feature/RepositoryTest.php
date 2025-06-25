@@ -1,193 +1,141 @@
 <?php
 
-namespace SolomonOchepa\Settings\Tests\Feature;
-
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use SolomonOchepa\Settings\Facades\Settings;
 use SolomonOchepa\Settings\Models\Setting;
 use SolomonOchepa\Settings\Repositories\SettingsRepository;
-use SolomonOchepa\Settings\Tests\TestCase;
 
-class RepositoryTest extends TestCase
-{
-    use RefreshDatabase;
+uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
-    protected SettingsRepository $settings;
+beforeEach(function () {
+    $this->settings = new SettingsRepository;
+});
 
-    protected function setUp(): void
-    {
-        parent::setUp();
+test('it sets a new key value in store', function () {
+    $this->assertDatabaseMissing('settings', ['app_name' => 'Laravel']);
 
-        $this->settings = new SettingsRepository;
-    }
+    $this->settings->add('app_name', 'Laravel');
 
-    public function test_it_sets_a_new_key_value_in_store()
-    {
-        $this->assertDatabaseMissing('settings', ['app_name' => 'Laravel']);
+    $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => json_encode('Laravel')]);
+});
 
-        $this->settings->add('app_name', 'Laravel');
+test('it dont set if same key value pair exists in store', function () {
+    $this->assertDatabaseMissing('settings', ['app_name' => 'Laravel']);
 
-        $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => json_encode('Laravel')]);
-    }
+    $this->settings->add('app_name', 'Laravel');
+    $this->settings->add('app_name', 'Laravel');
 
-    public function test_it_dont_set_if_same_key_value_pair_exists_in_store()
-    {
-        $this->assertDatabaseMissing('settings', ['app_name' => 'Laravel']);
+    $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => json_encode('Laravel')]);
+    expect($this->settings->all(true))->toHaveCount(1);
 
-        $this->settings->add('app_name', 'Laravel');
-        $this->settings->add('app_name', 'Laravel');
+    $this->settings->add('email_name', 'Laravel');
+    expect($this->settings->all(true))->toHaveCount(2);
+});
 
-        $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => json_encode('Laravel')]);
-        $this->assertCount(1, $this->settings->all(true));
+test('it updates exisiting setting if already exists', function () {
+    $this->settings->add('app_name', 'Laravel');
+    $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => json_encode('Laravel')]);
 
-        $this->settings->add('email_name', 'Laravel');
-        $this->assertCount(2, $this->settings->all(true));
-    }
+    $this->settings->add('app_name', 'Updated Laravel');
 
-    public function test_it_updates_exisiting_setting_if_already_exists()
-    {
-        $this->settings->add('app_name', 'Laravel');
-        $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => json_encode('Laravel')]);
+    $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => json_encode('Updated Laravel')]);
+    expect($this->settings->get('app_name'))->toEqual('Updated Laravel');
+});
 
-        $this->settings->add('app_name', 'Updated Laravel');
+test('it gives default value if nothing setting not found', function () {
+    $this->assertDatabaseMissing('settings', ['app_name' => 'Laravel']);
 
-        $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => json_encode('Updated Laravel')]);
-        $this->assertEquals('Updated Laravel', $this->settings->get('app_name'));
-    }
+    expect($this->settings->get('app_name', 'Default App Name'))->toEqual('Default App Name');
+});
 
-    // public function test_it_removes_a_setting_from_storage()
-    // {
-    //     $this->settings->add('app_name', 'Laravel');
-    //     $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => json_encode('Laravel')]);
-    //     $this->assertEquals('Laravel', $this->settings->get('app_name'));
+test('it gives you saved setting value', function () {
+    $this->settings->add('app_name', 'Laravel');
 
-    //     $this->settings->delete('app_name');
+    expect($this->settings->get('app_name', 'Default App Name'))->toEqual('Laravel');
 
-    //     $this->assertDatabaseMissing('settings', ['name' => 'app_name', 'value' => json_encode('Laravel')]);
-    //     $this->assertNull($this->settings->get('app_name'));
-    // }
+    // change the setting
+    $this->settings->add('app_name', 'Changed Laravel');
 
-    public function test_it_gives_default_value_if_nothing_setting_not_found()
-    {
-        $this->assertDatabaseMissing('settings', ['app_name' => 'Laravel']);
+    expect($this->settings->get('app_name', 'Default App Name'))->toEqual('Changed Laravel');
+});
 
-        $this->assertEquals(
-            'Default App Name',
-            $this->settings->get('app_name', 'Default App Name')
-        );
-    }
+test('it can add multiple settings in if multi array is passed', function () {
+    $this->settings->add([
+        'app_name' => 'Laravel',
+        'app_email' => 'info@example.com',
+        'app_type' => 'SaaS',
+    ]);
 
-    public function test_it_gives_you_saved_setting_value()
-    {
-        $this->settings->add('app_name', 'Laravel');
+    expect($this->settings->all())->toHaveCount(3);
+    expect($this->settings->get('app_name'))->toEqual('Laravel');
+    expect($this->settings->get('app_email'))->toEqual('info@example.com');
+    expect($this->settings->get('app_type'))->toEqual('SaaS');
+});
 
-        $this->assertEquals(
-            'Laravel',
-            $this->settings->get('app_name', 'Default App Name')
-        );
+test('it can use helper function to set and get settings', function () {
+    settings()->add('app_name', 'Cool App');
 
-        // change the setting
-        $this->settings->add('app_name', 'Changed Laravel');
+    expect(settings()->get('app_name'))->toEqual('Cool App');
 
-        $this->assertEquals(
-            'Changed Laravel',
-            $this->settings->get('app_name', 'Default App Name')
-        );
-    }
+    $this->assertDatabaseHas('settings', ['name' => 'app_name']);
+});
 
-    public function test_it_can_add_multiple_settings_in_if_multi_array_is_passed()
-    {
-        $this->settings->add([
-            'app_name' => 'Laravel',
-            'app_email' => 'info@example.com',
-            'app_type' => 'SaaS',
-        ]);
+test('it can access setting via facade', function () {
+    Settings::add('app_name', 'Cool App');
 
-        $this->assertCount(3, $this->settings->all());
-        $this->assertEquals('Laravel', $this->settings->get('app_name'));
-        $this->assertEquals('info@example.com', $this->settings->get('app_email'));
-        $this->assertEquals('SaaS', $this->settings->get('app_type'));
-    }
+    expect(Settings::get('app_name'))->toEqual('Cool App');
 
-    public function test_it_can_use_helper_function_to_set_and_get_settings()
-    {
-        settings()->set('app_name', 'Cool App');
+    $this->assertDatabaseHas('settings', ['name' => 'app_name']);
+});
 
-        $this->assertEquals('Cool App', settings()->get('app_name'));
+test('it has a default group name for settings', function () {
+    settings()->add('app_name', 'Cool App');
 
-        $this->assertDatabaseHas('settings', ['name' => 'app_name']);
-    }
+    $this->assertDatabaseHas('settings', [
+        'name' => 'app_name',
+        'value' => json_encode('Cool App'),
+        'group' => 'default',
+    ]);
+});
 
-    public function test_it_can_access_setting_via_facade()
-    {
-        Settings::set('app_name', 'Cool App');
+test('it can store setting with a group name', function () {
+    settings()->group('set1')->add('app_name', 'Cool App');
 
-        $this->assertEquals('Cool App', Settings::get('app_name'));
+    $this->assertDatabaseHas('settings', [
+        'name' => 'app_name',
+        'value' => json_encode('Cool App'),
+        'group' => 'set1',
+    ]);
+});
 
-        $this->assertDatabaseHas('settings', ['name' => 'app_name']);
-    }
+test('it can get setting from a group', function () {
+    settings()->group('set1')->add('app_name', 'Cool App');
 
-    public function test_it_has_a_default_group_name_for_settings()
-    {
-        settings()->set('app_name', 'Cool App');
+    expect(settings()->group('set1')->has('app_name'))->toBeTrue();
+    expect(settings()->group('set1')->get('app_name'))->toEqual('Cool App');
+    expect(settings()->group('set2')->has('app_name'))->toBeFalse();
+});
 
-        $this->assertDatabaseHas('settings', [
-            'name' => 'app_name',
-            'value' => json_encode('Cool App'),
-            'group' => 'default',
-        ]);
-    }
+test('it give you all settings from default group if you dont specify one', function () {
+    settings()->add('app_name', 'Cool App 1');
+    settings()->add('app_name', 'Cool App 2');
 
-    public function test_it_can_store_setting_with_a_group_name()
-    {
-        settings()->group('set1')->set('app_name', 'Cool App');
+    expect(settings()->all(true))->toHaveCount(1);
+    expect(settings()->group('unknown')->all(true))->toHaveCount(0);
+});
 
-        $this->assertDatabaseHas('settings', [
-            'name' => 'app_name',
-            'value' => json_encode('Cool App'),
-            'group' => 'set1',
-        ]);
-    }
+test('it allows same key to be used in different groups', function () {
+    settings()->group('team1')->add('app_name', 'Cool App 1');
+    settings()->group('team2')->add('app_name', 'Cool App 2');
 
-    public function test_it_can_get_setting_from_a_group()
-    {
-        settings()->group('set1')->set('app_name', 'Cool App');
+    expect(settings()->all(true))->toHaveCount(2);
+    expect(settings()->group('team1')->get('app_name'))->toEqual('Cool App 1');
+    expect(settings()->group('team2')->get('app_name'))->toEqual('Cool App 2');
+});
 
-        $this->assertTrue(settings()->group('set1')->has('app_name'));
-        $this->assertEquals('Cool App', settings()->group('set1')->get('app_name'));
-        $this->assertFalse(settings()->group('set2')->has('app_name'));
-    }
+test('it get group settings using facade', function () {
+    Settings::group('team1')->add('app_name', 'Cool App');
 
-    public function test_it_give_you_all_settings_from_default_group_if_you_dont_specify_one()
-    {
-        settings()->set('app_name', 'Cool App 1');
-        settings()->set('app_name', 'Cool App 2');
+    expect(Settings::group('team1')->get('app_name'))->toEqual('Cool App');
 
-        $this->assertCount(1, settings()->all(true));
-        $this->assertCount(0, settings()->group('unknown')->all(true));
-    }
-
-    // public function test_it_allows_same_key_to_be_used_in_different_groups()
-    // {
-    //     settings()->group('team1')->set('app_name', 'Cool App 1');
-    //     settings()->group('team2')->set('app_name', 'Cool App 2');
-
-    //     $this->assertCount(2, Setting::all());
-    //     $this->assertEquals('Cool App 1', settings()->group('team1')->get('app_name'));
-    //     $this->assertEquals('Cool App 2', settings()->group('team2')->get('app_name'));
-    // }
-
-    /**
-     * it get group settings using facade
-     *
-     * @test
-     */
-    public function test_it_get_group_settings_using_facade()
-    {
-        Settings::group('team1')->set('app_name', 'Cool App');
-
-        $this->assertEquals('Cool App', Settings::group('team1')->get('app_name'));
-
-        $this->assertDatabaseHas('settings', ['name' => 'app_name', 'group' => 'team1']);
-    }
-}
+    $this->assertDatabaseHas('settings', ['name' => 'app_name', 'group' => 'team1']);
+});
