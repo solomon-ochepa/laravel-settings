@@ -11,7 +11,7 @@ if (! function_exists('settings')) {
      * - settings('name') => get a specific setting value
      * - settings(['name' => 'value']) => add new setting(s)
      */
-    function settings(null|string|array $key = null, $default = null): mixed
+    function settings(null|string|array $key = null, $default = null): SettingsInterface
     {
         try {
             $settings = app(SettingsInterface::class);
