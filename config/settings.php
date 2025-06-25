@@ -28,7 +28,7 @@ return [
          *
          * When settings are updated, the cache is automatically flushed.
          */
-        'timeout' => env('SETTINGS_CACHE_TIMEOUT', \DateInterval::createFromDateString('24 hours')),
+        'ttl' => env('SETTINGS_CACHE_TTL', \DateInterval::createFromDateString('24 hours')),
 
         /*
          * The cache key used to store all settings.

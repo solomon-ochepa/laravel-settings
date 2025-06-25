@@ -20,6 +20,8 @@ class SettingsRepository implements SettingsInterface
 
     protected string $cache_key;
 
+    protected string $cache_ttl;
+
     protected ?string $settable_type = null;
 
     protected mixed $settable_id = null;
@@ -30,6 +32,7 @@ class SettingsRepository implements SettingsInterface
         $this->columns['name'] = config('settings.columns.name', 'name');
         $this->columns['value'] = config('settings.columns.value', 'value');
         $this->cache_key = config('settings.cache.key', 'settings');
+        $this->cache_ttl = config('settings.cache.ttl', now()->addHours(24));
     }
 
     /**
@@ -83,7 +86,7 @@ class SettingsRepository implements SettingsInterface
         }
 
         if (Cache::missing($this->cache_key())) {
-            Cache::add($this->cache_key(), $this->query()->pluck($this->columns['value'], $this->columns['name']), now()->addSeconds(60));
+            Cache::add($this->cache_key(), $this->query()->pluck($this->columns['value'], $this->columns['name']), $this->cache_ttl);
         }
 
         return Cache::get($this->cache_key());
