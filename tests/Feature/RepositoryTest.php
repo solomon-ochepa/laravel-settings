@@ -25,10 +25,10 @@ test('it dont set if same key value pair exists in store', function () {
     $this->settings->set('app_name', 'Laravel');
 
     $this->assertDatabaseHas('settings', ['name' => 'app_name', 'value' => json_encode('Laravel')]);
-    expect($this->settings->all(true))->toHaveCount(1);
+    expect($this->settings->all())->toHaveCount(1);
 
     $this->settings->set('email_name', 'Laravel');
-    expect($this->settings->all(true))->toHaveCount(2);
+    expect($this->settings->all())->toHaveCount(2);
 });
 
 test('it updates exisiting setting if already exists', function () {
@@ -119,15 +119,15 @@ test('it give you all settings from default group if you dont specify one', func
     settings()->set('app_name', 'Cool App 1');
     settings()->set('app_name', 'Cool App 2');
 
-    expect(settings()->all(true))->toHaveCount(1);
-    expect(settings()->group('unknown')->all(true))->toHaveCount(0);
+    expect(settings()->all())->toHaveCount(1);
+    expect(settings()->group('unknown')->all())->toHaveCount(0);
 });
 
 test('it allows same key to be used in different groups', function () {
     Settings::group('team1')->set('app_name', 'Cool App 1');
     Settings::group('team2')->set('app_name', 'Cool App 2');
 
-    expect(settings()->all(true))->toHaveCount(2);
+    expect(settings()->all())->toHaveCount(2);
     expect(settings()->group('team1')->get('app_name'))->toEqual('Cool App 1');
     expect(settings()->group('team2')->get('app_name'))->toEqual('Cool App 2');
 });

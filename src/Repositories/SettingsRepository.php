@@ -12,6 +12,8 @@ use SolomonOchepa\Settings\Interfaces\SettingsInterface;
 
 class SettingsRepository implements SettingsInterface
 {
+    public bool $flush = false;
+
     protected string $group;
 
     protected array $columns = [];
@@ -59,7 +61,7 @@ class SettingsRepository implements SettingsInterface
     /**
      * {@inheritdoc}
      */
-    public function all(bool $flush = false): Collection
+    public function all(): Collection
     {
         if (! Schema::hasTable(config('settings.table'))) {
             if (config('app.debug', false)) {
@@ -69,12 +71,12 @@ class SettingsRepository implements SettingsInterface
             return collect();
         }
 
-        if ($flush) {
+        if ($this->flush) {
             Cache::flush();
         }
 
         if (Cache::missing($this->cache_key())) {
-            Cache::add($this->cache_key(), $this->modelQuery()->pluck($this->columns['value'], $this->columns['name']));
+            Cache::add($this->cache_key(), $this->modelQuery()->pluck($this->columns['value'], $this->columns['name']), now()->addSeconds(60));
         }
 
         return Cache::get($this->cache_key());
@@ -91,9 +93,9 @@ class SettingsRepository implements SettingsInterface
     /**
      * {@inheritdoc}
      */
-    public function get(string $key, mixed $default = null, bool $cached = true): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
-        return $this->all($cached)->get($key, $default);
+        return $this->all()->get($key, $default);
     }
 
     /**

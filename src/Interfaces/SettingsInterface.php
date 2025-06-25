@@ -24,7 +24,7 @@ interface SettingsInterface
     /**
      * Get all settings from storage as key value pair.
      */
-    public function all(bool $cached = true): Collection;
+    public function all(): Collection;
 
     /**
      * Get settings for the auth() user.
@@ -34,7 +34,7 @@ interface SettingsInterface
     /**
      * Get a setting from storage by key.
      */
-    public function get(string $key, mixed $default = null, bool $cached = true): mixed;
+    public function get(string $key, mixed $default = null): mixed;
 
     /**
      * Save a setting in storage and return the value.
