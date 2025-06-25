@@ -2,6 +2,7 @@
 
 namespace SolomonOchepa\Settings\Repositories;
 
+use DateInterval;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -14,13 +15,13 @@ class SettingsRepository implements SettingsInterface
 {
     public bool $flush = false;
 
-    protected string|array $group;
+    protected string|array $group = [];
 
     protected array $columns = [];
 
     protected string $cache_key;
 
-    protected string $cache_ttl;
+    protected DateInterval $cache_ttl;
 
     protected ?string $settable_type = null;
 
@@ -38,13 +39,13 @@ class SettingsRepository implements SettingsInterface
     /**
      * {@inheritdoc}
      */
-    public function group(null|string|array $name = null): self|string
+    public function group(null|string|array $name = null): self|array
     {
         if (! $name) {
             return $this->group;
         }
 
-        $this->group = $name;
+        $this->group = (array) $name;
 
         return $this;
     }
@@ -123,14 +124,16 @@ class SettingsRepository implements SettingsInterface
             return $this->get(array_key_first($key), Arr::first($key));
         }
 
-        $this->model()->updateOrCreate([
-            $this->columns['name'] => $key,
-            'group' => $this->group,
-            'settable_type' => $this->settable_type,
-            'settable_id' => $this->settable_id,
-        ], [
-            $this->columns['value'] => $value,
-        ]);
+        foreach ((array) $this->group as $group) {
+            $this->model()->updateOrCreate([
+                $this->columns['name'] => $key,
+                'group' => $group,
+                'settable_type' => $this->settable_type,
+                'settable_id' => $this->settable_id,
+            ], [
+                $this->columns['value'] => $value,
+            ]);
+        }
 
         $this->flush();
 

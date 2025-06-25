@@ -46,9 +46,9 @@ return [
 
     'group' => [
         /*
-         * ...
+         * Default settings group
          */
-        'default' => env('SETTINGS_GROUP_DEFAULT', 'default'),
+        'default' => env('SETTINGS_GROUP_DEFAULT', ['default']),
     ],
 
     'user' => [

@@ -9,7 +9,7 @@ interface SettingsInterface
     /**
      * Set/Get the group name for settings.
      */
-    public function group(null|string|array $name = null): self|string;
+    public function group(null|string|array $name = null): self|array;
 
     /**
      * Bind settings to a specific entity.
