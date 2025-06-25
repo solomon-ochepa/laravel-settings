@@ -7,9 +7,9 @@ use Illuminate\Support\Collection;
 interface SettingsInterface
 {
     /**
-     * Set the group name for settings.
+     * Set/Get the group name for settings.
      */
-    public function group(string $name): self;
+    public function group(string|array $name): self;
 
     /**
      * Bind settings to a specific entity.

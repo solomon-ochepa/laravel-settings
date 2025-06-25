@@ -22,9 +22,9 @@ class Setting extends Model
         ];
     }
 
-    public function scopeGroup($query, $name)
+    public function scopeGroup($query, string|array $name)
     {
-        return $query->whereGroup($name);
+        return $query->whereIn('group', (array) $name);
     }
 
     public function scopeFor($query, ?string $settable_type = null, ?string $settable_id = null)

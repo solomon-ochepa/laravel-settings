@@ -33,15 +33,18 @@ class SettingsRepository implements SettingsInterface
     }
 
     /**
-     * Set the group name for settings.
+     * {@inheritdoc}
      */
-    public function group(string $name): self
+    public function group(string|array $name): self
     {
         $this->group = $name;
 
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function for(string $settable_type, ?string $settable_id = null): self
     {
         $this->settable_type = $settable_type;
@@ -76,7 +79,7 @@ class SettingsRepository implements SettingsInterface
         }
 
         if (Cache::missing($this->cache_key())) {
-            Cache::add($this->cache_key(), $this->modelQuery()->pluck($this->columns['value'], $this->columns['name']), now()->addSeconds(60));
+            Cache::add($this->cache_key(), $this->query()->pluck($this->columns['value'], $this->columns['name']), now()->addSeconds(60));
         }
 
         return Cache::get($this->cache_key());
@@ -218,10 +221,8 @@ class SettingsRepository implements SettingsInterface
      *
      * @return Builder
      */
-    protected function modelQuery()
+    protected function query()
     {
-        return $this->model()
-            ->group($this->group)
-            ->for($this->settable_type, $this->settable_id);
+        return $this->model()->group($this->group)->for($this->settable_type, $this->settable_id);
     }
 }
