@@ -10,14 +10,6 @@ class Setting extends Model
 {
     use HasUuids, SoftDeletes;
 
-    protected $fillable = [
-        'name',
-        'value',
-        'group',
-        'settable_type',
-        'settable_id',
-    ];
-
     protected $guarded = [
         'id',
         'updated_at',
@@ -26,7 +18,7 @@ class Setting extends Model
     protected function casts()
     {
         return [
-            'value' => 'json',
+            config('settings.columns.value', 'value') => 'json',
         ];
     }
 
