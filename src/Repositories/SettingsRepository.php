@@ -14,7 +14,7 @@ class SettingsRepository implements SettingsInterface
 {
     public bool $flush = false;
 
-    protected string $group;
+    protected string|array $group;
 
     protected array $columns = [];
 
