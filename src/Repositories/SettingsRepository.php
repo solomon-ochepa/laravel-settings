@@ -31,6 +31,32 @@ class SettingsRepository implements SettingsInterface
     }
 
     /**
+     * Set the group name for settings.
+     */
+    public function group(string $name): self
+    {
+        $this->group = $name;
+
+        return $this;
+    }
+
+    public function for(string $settable_type, ?string $settable_id = null): self
+    {
+        $this->settable_type = $settable_type;
+        $this->settable_id = $settable_id;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function user(): self
+    {
+        return $this->for(config('settings.user.model') ?? get_class(Auth::user()), Auth::id());
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function all(bool $flush = false): Collection
@@ -73,7 +99,7 @@ class SettingsRepository implements SettingsInterface
     /**
      * {@inheritdoc}
      */
-    public function add(string|array $key, mixed $value = null): mixed
+    public function set(string|array $key, mixed $value = null): mixed
     {
         if (is_array($key)) {
             foreach ($key as $_key => $value) {
@@ -99,9 +125,12 @@ class SettingsRepository implements SettingsInterface
         return $value;
     }
 
-    public function set(string|array $key, mixed $value = null): mixed
+    /**
+     * {@inheritdoc}
+     */
+    public function add(string|array $key, mixed $value = null): mixed
     {
-        return $this->add($key, $value);
+        return $this->set($key, $value);
     }
 
     /**
@@ -192,31 +221,5 @@ class SettingsRepository implements SettingsInterface
         return $this->model()
             ->group($this->group)
             ->for($this->settable_type, $this->settable_id);
-    }
-
-    /**
-     * Set the group name for settings.
-     */
-    public function group(string $name): self
-    {
-        $this->group = $name;
-
-        return $this;
-    }
-
-    public function for(string $settable_type, ?string $settable_id = null): self
-    {
-        $this->settable_type = $settable_type;
-        $this->settable_id = $settable_id;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function user(): self
-    {
-        return $this->for(config('settings.user.model') ?? get_class(Auth::user()), Auth::id());
     }
 }

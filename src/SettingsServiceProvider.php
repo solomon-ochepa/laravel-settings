@@ -3,6 +3,7 @@
 namespace SolomonOchepa\Settings;
 
 use Illuminate\Support\ServiceProvider;
+use SolomonOchepa\Settings\Interfaces\SettingsInterface;
 
 class SettingsServiceProvider extends ServiceProvider
 {
@@ -28,6 +29,8 @@ class SettingsServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->alias(SettingsInterface::class, 'settings');
+
         $this->mergeConfigFrom(__DIR__.'/../config/settings.php', 'settings');
 
         // bind Settings repository

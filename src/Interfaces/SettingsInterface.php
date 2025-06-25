@@ -7,6 +7,21 @@ use Illuminate\Support\Collection;
 interface SettingsInterface
 {
     /**
+     * Set the group name for settings.
+     */
+    public function group(string $name): self;
+
+    /**
+     * Bind settings to a specific entity.
+     */
+    public function for(string $settable_type, ?string $settable_id = null): self;
+
+    /**
+     * Bind settings to the auth user.
+     */
+    public function user(): self;
+
+    /**
      * Get all settings from storage as key value pair.
      */
     public function all(bool $cached = true): Collection;
@@ -24,12 +39,17 @@ interface SettingsInterface
     /**
      * Save a setting in storage and return the value.
      */
-    public function add(string|array $key, mixed $value = null): mixed;
+    public function set(string|array $key, mixed $value = null): mixed;
 
     /**
-     * Check if setting with key exists.
+     * Check if a setting exists.
      */
     public function has(string $key): bool;
+
+    /**
+     * Check if a setting is missing.
+     */
+    public function missing(string $key): bool;
 
     /**
      * Trash a setting from storage.
@@ -50,19 +70,4 @@ interface SettingsInterface
      * Flush setting cache.
      */
     public function flush(): bool;
-
-    /**
-     * Set the group name for settings.
-     */
-    public function group(string $name): self;
-
-    /**
-     * Bind settings to a specific entity.
-     */
-    public function for(string $settable_type, ?string $settable_id = null): self;
-
-    /**
-     * Bind settings to the auth user.
-     */
-    public function user(): self;
 }
