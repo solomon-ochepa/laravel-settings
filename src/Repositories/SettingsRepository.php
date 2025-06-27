@@ -82,6 +82,10 @@ class SettingsRepository implements SettingsInterface
             return collect();
         }
 
+        if (! config('settings.cache.enable')) {
+            return $this->query()->pluck($this->columns['value'], $this->columns['name']);
+        }
+
         if ($this->flush) {
             Cache::flush();
         }

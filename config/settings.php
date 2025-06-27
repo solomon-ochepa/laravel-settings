@@ -22,7 +22,16 @@ return [
         'value' => env('SETTINGS_COLUMNS_VALUE', 'value'),
     ],
 
+    'group' => [
+        /*
+         * The Settings default group(s)
+         */
+        'default' => env('SETTINGS_GROUP_DEFAULT', 'default'),
+    ],
+
     'cache' => [
+        'enable' => true,
+
         /*
          * By default, all settings are cached for 24 hours to enhance performance.
          *
@@ -42,13 +51,6 @@ return [
          * Using 'default' here means the `default` driver set in `cache.php` will be used.
          */
         'store' => env('SETTINGS_CACHE_STORE', 'default'),
-    ],
-
-    'group' => [
-        /*
-         * Default settings group
-         */
-        'default' => env('SETTINGS_GROUP_DEFAULT', ['default']),
     ],
 
     'user' => [
