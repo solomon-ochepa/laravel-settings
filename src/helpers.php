@@ -11,7 +11,7 @@ if (! function_exists('settings')) {
      * - settings('name') => get a specific setting value
      * - settings(['name' => 'value']) => add new setting(s)
      */
-    function settings(null|string|array $key = null, $default = null): SettingsInterface
+    function settings(null|string|array $key = null, $default = null): ?SettingsInterface
     {
         try {
             $settings = app(SettingsInterface::class);
@@ -21,10 +21,10 @@ if (! function_exists('settings')) {
             }
 
             if (is_array($key)) {
-                return $settings->add($key);
-            } else {
-                return $settings->get($key, value($default));
+                return $settings->set($key);
             }
+
+            return $settings->get($key, value($default));
         } catch (\Throwable $e) {
             Log::error($e->getMessage());
 
