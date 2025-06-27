@@ -209,7 +209,7 @@ class SettingsRepository implements SettingsInterface
      */
     public function flush(): bool
     {
-        return Cache::forget($this->cache_key());
+        return config('settings.cache.enable') ? Cache::forget($this->cache_key()) : true;
     }
 
     /**
