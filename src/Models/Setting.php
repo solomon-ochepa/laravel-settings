@@ -1,6 +1,6 @@
 <?php
 
-namespace Oki\Settings\Models;
+namespace SolomonOchepa\Settings\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;

@@ -1,6 +1,6 @@
 <?php
 
-use Oki\Settings\Tests\TestCase;
+use SolomonOchepa\Settings\Tests\TestCase;
 
 /*
 |--------------------------------------------------------------------------

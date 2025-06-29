@@ -5,9 +5,9 @@ return [
      * Which Eloquent model should be used to retrieve your settings?
      * Typically, it is the 'Setting' model, but you can use whatever you prefer.
      *
-     * Your custom model needs to implement the Oki\Settings\Models\Setting class.
+     * Your custom model needs to implement the SolomonOchepa\Settings\Models\Setting class.
      */
-    'model' => env('SETTINGS_MODEL', Oki\Settings\Models\Setting::class),
+    'model' => env('SETTINGS_MODEL', SolomonOchepa\Settings\Models\Setting::class),
 
     /*
      * Table name

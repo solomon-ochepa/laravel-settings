@@ -1,6 +1,6 @@
 <?php
 
-namespace Oki\Settings;
+namespace SolomonOchepa\Settings;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -34,8 +34,8 @@ class SettingsServiceProvider extends ServiceProvider
 
         // bind Settings repository
         $this->app->bind(
-            'Oki\Settings\Interfaces\SettingInterface',
-            'Oki\Settings\Repositories\SettingRepository'
+            'SolomonOchepa\Settings\Interfaces\SettingInterface',
+            'SolomonOchepa\Settings\Repositories\SettingRepository'
         );
     }
 }

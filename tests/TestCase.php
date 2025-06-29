@@ -1,6 +1,6 @@
 <?php
 
-namespace Oki\Settings\Tests;
+namespace SolomonOchepa\Settings\Tests;
 
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
@@ -25,7 +25,7 @@ abstract class TestCase extends OrchestraTestCase
      */
     protected function getPackageProviders($app)
     {
-        return ['Oki\Settings\SettingsServiceProvider'];
+        return ['SolomonOchepa\Settings\SettingsServiceProvider'];
     }
 
     /**
@@ -35,7 +35,7 @@ abstract class TestCase extends OrchestraTestCase
     protected function getPackageAliases($app)
     {
         return [
-            'Settings' => 'Oki\Settings\Facades\Settings',
+            'Settings' => 'SolomonOchepa\Settings\Facades\Settings',
         ];
     }
 

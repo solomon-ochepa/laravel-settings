@@ -1,12 +1,12 @@
 <?php
 
-namespace Oki\Settings\Repositories;
+namespace SolomonOchepa\Settings\Repositories;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
-use Oki\Settings\Interfaces\SettingInterface;
+use SolomonOchepa\Settings\Interfaces\SettingInterface;
 
 class SettingRepository implements SettingInterface
 {
@@ -147,7 +147,7 @@ class SettingRepository implements SettingInterface
      */
     protected function getSettingModel()
     {
-        return app('\Oki\Settings\Models\Setting');
+        return app('\SolomonOchepa\Settings\Models\Setting');
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace Oki\Settings\Interfaces;
+namespace SolomonOchepa\Settings\Interfaces;
 
 use Illuminate\Support\Collection;
 

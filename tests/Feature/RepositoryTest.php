@@ -1,6 +1,6 @@
 <?php
 
-use Oki\Settings\Facades\Settings;
+use SolomonOchepa\Settings\Facades\Settings;
 
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
