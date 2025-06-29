@@ -3,6 +3,7 @@
 namespace SolomonOchepa\Settings;
 
 use Illuminate\Support\ServiceProvider;
+use SolomonOchepa\Settings\Interfaces\SettingsInterface;
 
 class SettingsServiceProvider extends ServiceProvider
 {
@@ -12,30 +13,30 @@ class SettingsServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load & Publish config
-        $configPath = __DIR__.'/../config/settings.php';
         $this->publishes([
-            $configPath => config_path('settings.php'),
+            __DIR__.'/../config/settings.php' => config_path('settings.php'),
         ], 'config');
 
         // Load & Publish migration
         $this->loadMigrationsFrom(__DIR__.'/migrations');
-        $this->publishes([__DIR__.'/migrations/' => database_path('/migrations/'),
+        $this->publishes([
+            __DIR__.'/migrations/' => database_path('/migrations/'),
         ], 'migrations');
     }
 
     /**
      * Register bindings in the container.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
+        $this->app->alias(SettingsInterface::class, 'settings');
+
         $this->mergeConfigFrom(__DIR__.'/../config/settings.php', 'settings');
 
         // bind Settings repository
         $this->app->bind(
-            'SolomonOchepa\Settings\Interfaces\SettingInterface',
-            'SolomonOchepa\Settings\Repositories\SettingRepository'
+            'SolomonOchepa\Settings\Interfaces\SettingsInterface',
+            'SolomonOchepa\Settings\Repositories\SettingsRepository'
         );
     }
 }

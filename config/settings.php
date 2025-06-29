@@ -19,16 +19,26 @@ return [
      */
     'columns' => [
         'name' => env('SETTINGS_COLUMNS_NAME', 'name'),
-        'value' => env('SETTINGS_COLUMNS_VALUE', 'val'),
+        'value' => env('SETTINGS_COLUMNS_VALUE', 'value'),
+        'group' => env('SETTINGS_COLUMNS_GROUP', 'group'),
+    ],
+
+    'group' => [
+        /*
+         * The Settings default group(s)
+         */
+        'default' => env('SETTINGS_GROUP_DEFAULT', 'default'),
     ],
 
     'cache' => [
+        'enable' => true,
+
         /*
          * By default, all settings are cached for 24 hours to enhance performance.
          *
          * When settings are updated, the cache is automatically flushed.
          */
-        'timeout' => env('SETTINGS_CACHE_TIMEOUT', \DateInterval::createFromDateString('24 hours')),
+        'ttl' => env('SETTINGS_CACHE_TTL', \DateInterval::createFromDateString('24 hours')),
 
         /*
          * The cache key used to store all settings.
@@ -44,10 +54,7 @@ return [
         'store' => env('SETTINGS_CACHE_STORE', 'default'),
     ],
 
-    'group' => [
-        /*
-         * ...
-         */
-        'default' => env('SETTINGS_GROUP_DEFAULT', 'default'),
+    'user' => [
+        'model' => null, // App\Models\User::class
     ],
 ];

@@ -10,16 +10,14 @@ class Setting extends Model
 {
     use HasUuids, SoftDeletes;
 
-    protected $table = 'settings';
+    protected $guarded = ['id', 'updated_at', 'deleted_at'];
 
-    protected $guarded = ['updated_at', 'id'];
-
-    public function scopeGroup($query, $groupName)
+    public function scopeGroup($query, string|array $name)
     {
-        return $query->whereGroup($groupName);
+        return $query->whereGroup($name);
     }
 
-    public function scopeFor($query, $settable_type, $settable_id)
+    public function scopeFor($query, ?string $settable_type = null, ?string $settable_id = null)
     {
         return $query->whereSettableType($settable_type)->whereSettableId($settable_id);
     }

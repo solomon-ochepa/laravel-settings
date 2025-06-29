@@ -1,23 +1,34 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
+use SolomonOchepa\Settings\Interfaces\SettingsInterface;
+
 if (! function_exists('settings')) {
-
     /**
-     * Get app setting from database.
+     * Get setting(s) from the database or add a new one if an array is passed.
+     *
+     * Usage:
+     * - settings('name') => get a specific setting value
+     * - settings(['name' => 'value']) => add new setting(s)
      */
-    function settings(string|array|null $key = null, $default = null): mixed
+    function settings(null|string|array $key = null, $default = null): ?SettingsInterface
     {
-        $setting = app()->make('SolomonOchepa\Settings\Interfaces\SettingInterface');
+        try {
+            $settings = app(SettingsInterface::class);
 
-        if (is_null($key)) {
-            // return $setting->all();
-            return $setting;
+            if (is_null($key)) {
+                return $settings;
+            }
+
+            if (is_array($key)) {
+                return $settings->set($key);
+            }
+
+            return $settings->get($key, value($default));
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage());
+
+            return $default;
         }
-
-        if (is_array($key)) {
-            return $setting->set($key);
-        }
-
-        return $setting->get($key, value($default));
     }
 }
