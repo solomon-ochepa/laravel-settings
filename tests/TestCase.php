@@ -3,9 +3,17 @@
 namespace SolomonOchepa\Settings\Tests;
 
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use SolomonOchepa\Settings\Tests\App\Models\User;
 
 abstract class TestCase extends OrchestraTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->loadMigrationsFrom(__DIR__.'/App/database/migrations');
+    }
+
     /**
      * @param  \Illuminate\Foundation\Application  $app
      */
@@ -17,13 +25,23 @@ abstract class TestCase extends OrchestraTestCase
             'database' => ':memory:',
             'prefix' => '',
         ]);
+
+        // Set up auth
+        $app['config']->set('auth.defaults.guard', 'web');
+        $app['config']->set('auth.guards.web', [
+            'driver' => 'session',
+            'provider' => 'users',
+        ]);
+        $app['config']->set('auth.providers.users', [
+            'driver' => 'eloquent',
+            'model' => User::class,
+        ]);
     }
 
     /**
      * @param  \Illuminate\Foundation\Application  $app
-     * @return array
      */
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return ['SolomonOchepa\Settings\SettingsServiceProvider'];
     }
