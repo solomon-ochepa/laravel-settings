@@ -134,17 +134,13 @@ settings($key)->group($name);
 ## Settable `for()`
 Get/set settings for a specific entity
 ```php
-Settings::for($settable_type, $settable_id = null)->set($key, $value)
-// or
-Settings::set($key, $value = null, $settable_type = null, $settable_id = null)
+Settings::for($settable)->set($key, $value)
 
 // helper function
-settings()->for($settable_type = null, $settable_id = null)->set($key, $value = null)
-// or
-settings()->set($key, $value = null, $settable_type = null, $settable_id = null)
+settings()->for($settable)->set($key, $value)
 
 // Example:
-settings()->for(User::class, auth()->id())->set('theme_mode', 'dark');
+settings()->for(auth()->user())->set($key, $value);
 ```
 
 ## Settable `user()`

@@ -14,7 +14,7 @@ interface SettingsInterface
     /**
      * Bind settings to a specific entity.
      */
-    public function for(string $settable_type, ?string $settable_id = null): self;
+    public function for(string|object $settable): self;
 
     /**
      * Bind settings to the auth user.

@@ -4,6 +4,7 @@ namespace SolomonOchepa\Settings\Repositories;
 
 use DateInterval;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -23,9 +24,7 @@ class SettingsRepository implements SettingsInterface
 
     public DateInterval $cache_ttl;
 
-    public ?string $settable_type = null;
-
-    public mixed $settable_id = null;
+    public mixed $settable = null;
 
     public function __construct()
     {
@@ -53,10 +52,9 @@ class SettingsRepository implements SettingsInterface
     /**
      * {@inheritdoc}
      */
-    public function for(string $settable_type, ?string $settable_id = null): self
+    public function for(string|object $settable): self
     {
-        $this->settable_type = $settable_type;
-        $this->settable_id = $settable_id;
+        $this->settable = $settable;
 
         return $this;
     }
@@ -66,7 +64,7 @@ class SettingsRepository implements SettingsInterface
      */
     public function user(): self
     {
-        return $this->for(config('settings.user.model') ?? get_class(Auth::user()), Auth::id());
+        return $this->for(Auth::user());
     }
 
     /**
@@ -120,7 +118,7 @@ class SettingsRepository implements SettingsInterface
     {
         if (is_array($key)) {
             foreach ($key as $_key => $value) {
-                $this->add($_key, $value);
+                $this->set($_key, $value);
             }
 
             $this->flush();
@@ -132,8 +130,8 @@ class SettingsRepository implements SettingsInterface
             $this->model()->updateOrCreate([
                 $this->columns['name'] => $key,
                 'group' => $group,
-                'settable_type' => $this->settable_type,
-                'settable_id' => $this->settable_id,
+                'settable_type' => $this->settable('type'),
+                'settable_id' => $this->settable('id'),
             ], [
                 $this->columns['value'] => $value,
             ]);
@@ -142,6 +140,16 @@ class SettingsRepository implements SettingsInterface
         $this->flush();
 
         return $value;
+    }
+
+    protected function settable(?string $key = null): null|string|array
+    {
+        $settable = [
+            'type' => is_object($this->settable) ? get_class($this->settable) : $this->settable,
+            'id' => is_object($this->settable) ? $this->settable?->id : null,
+        ];
+
+        return $key ? $settable[$key] : $settable;
     }
 
     /**
@@ -222,21 +230,19 @@ class SettingsRepository implements SettingsInterface
 
     /**
      * Get settings eloquent model.
-     *
-     * @return Builder
      */
-    protected function model()
+    protected function model(): Model
     {
         return app(config('settings.model', '\SolomonOchepa\Settings\Models\Setting'));
     }
 
     /**
      * Get the model query builder.
-     *
-     * @return Builder
      */
-    protected function query()
+    protected function query(): Builder
     {
-        return $this->model()->group($this->group)->for($this->settable_type, $this->settable_id);
+        return $this->model()
+            ->when($this->group, fn ($q) => $q->group($this->group))
+            ->when($this->settable, fn ($q) => $q->for($this->settable));
     }
 }

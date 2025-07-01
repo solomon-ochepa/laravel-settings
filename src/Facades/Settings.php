@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Facade;
  * @see \SolomonOchepa\Settings\Interfaces\SettingsInterface
  *
  * @method static self group(string $name): self
- * @method static self for(string $settable_type, ?string $settable_id = null): self
+ * @method static self for(string|object $settable): self
  * @method static self user(): self
  * @method static Illuminate\Support\Collection all(bool $cached = true): Illuminate\Support\Collection
  * @method static mixed my(string $key, mixed $default = null): mixed

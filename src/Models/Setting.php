@@ -17,8 +17,10 @@ class Setting extends Model
         return $query->whereGroup($name);
     }
 
-    public function scopeFor($query, ?string $settable_type = null, ?string $settable_id = null)
+    public function scopeFor($query, string|object $settable)
     {
-        return $query->whereSettableType($settable_type)->whereSettableId($settable_id);
+        return $query
+            ->where('settable_type', is_object($settable) ? get_class($settable) : $settable)
+            ->where('settable_id', is_object($settable) ? $settable?->id : null);
     }
 }

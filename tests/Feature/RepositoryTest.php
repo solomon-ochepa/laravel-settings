@@ -1,12 +1,11 @@
 <?php
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 use SolomonOchepa\Settings\Facades\Settings;
 use SolomonOchepa\Settings\Repositories\SettingsRepository;
+use SolomonOchepa\Settings\Tests\App\Models\User;
 
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
@@ -70,13 +69,12 @@ test('cache_key generates correct key for group and key', function () {
 });
 
 test('my() returns user setting', function () {
-    $id = Str::uuid()->toString();
-    Auth::shouldReceive('user')->andReturn((object) ['id' => $id]);
-    Auth::shouldReceive('id')->andReturn($id);
-    config(['settings.user.model' => 'App\\Models\\User']);
+    $user = User::factory()->create();
+    $this->actingAs($user);
 
     settings()->user()->set('my_key', 'my_value');
-    expect(settings()->user()->my('my_key'))->toEqual('my_value');
+    expect(settings()->user()->get('my_key'))->toEqual('my_value');
+    expect(settings()->my('my_key'))->toEqual('my_value');
 });
 
 test('set() and get() work with multiple groups', function () {
@@ -106,26 +104,24 @@ test('group() returns default and sets group', function () {
     expect(Settings::group())->toEqual(['a', 'b']);
 });
 
-test('for() and user() set settable_type and settable_id', function () {
-    $id = Str::uuid()->toString();
-    $settings = new SettingsRepository;
-    $settings->for('User', $id);
-    expect($settings->settable_type)->toBe('User');
-    expect($settings->settable_id)->toBe($id);
+test('for() set settable and get settings', function () {
+    $user = User::factory()->create();
 
-    $id = Str::uuid()->toString();
-    Auth::shouldReceive('user')->andReturn((object) ['id' => $id]);
-    Auth::shouldReceive('id')->andReturn($id);
-    $settings = new SettingsRepository;
-    config(['settings.user.model' => 'App\\Models\\User']);
-    $settings->user();
+    settings()->for($user)->set('theme', 'dark');
+    expect(settings()->for($user)->get('theme'))->toBe('dark');
+});
 
-    expect($settings->settable_type)->toBe('App\\Models\\User');
-    expect($settings->settable_id)->toBe($id);
+test('user() set settable', function () {
+    $user = User::factory()->create();
+    $this->be($user);
+
+    settings()->user()->set('theme', 'dark');
+    expect(settings()->user()->get('theme'))->toBe('dark');
+    expect(settings()->my('theme'))->toBe('dark');
 });
 
 test('all() returns empty collection if table missing', function () {
-    Schema::shouldReceive('hasTable')->andReturn(false);
+    Schema::shouldReceive('hasTable', 'dropIfExists')->andReturn(false);
 
     expect(Settings::all())->toBeInstanceOf(Collection::class);
     expect(Settings::all())->toHaveCount(0);
