@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\Facade;
  * @method static self group(string $name): self
  * @method static self for(string|object $settable): self
  * @method static self user(): self
- * @method static Illuminate\Support\Collection all(bool $cached = true): Illuminate\Support\Collection
+ * @method static Illuminate\Support\Collection all(): Illuminate\Support\Collection
  * @method static mixed my(string $key, mixed $default = null): mixed
- * @method static mixed get(string $key, mixed $default = null, bool $cached = true): mixed
+ * @method static mixed get(string $key, mixed $default = null): mixed
  * @method static mixed set(string|array $key, mixed $value = null): mixed
  * @method static bool has(string $key): bool
  * @method static bool missing(string $key): bool

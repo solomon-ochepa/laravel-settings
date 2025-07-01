@@ -38,12 +38,8 @@ class SettingsRepository implements SettingsInterface
     /**
      * {@inheritdoc}
      */
-    public function group(null|string|array $name = null): self|string|array
+    public function group(string|array $name): self
     {
-        if (! $name) {
-            return $this->group;
-        }
-
         $this->group = (array) $name;
 
         return $this;
@@ -54,6 +50,10 @@ class SettingsRepository implements SettingsInterface
      */
     public function for(string|object $settable): self
     {
+        if (! $settable) {
+            return $this->settable;
+        }
+
         $this->settable = $settable;
 
         return $this;
@@ -80,8 +80,18 @@ class SettingsRepository implements SettingsInterface
             return collect();
         }
 
+        $data = collect();
+
+        if (is_array($this->group) and count($this->group) > 1) {
+            foreach ($this->group as $group) {
+                $data->put($group, $this->group($group)->query()->pluck($this->columns['value'], $this->columns['name']));
+            }
+        } else {
+            $data = $this->query()->pluck($this->columns['value'], $this->columns['name']);
+        }
+
         if (! config('settings.cache.enable')) {
-            return $this->query()->pluck($this->columns['value'], $this->columns['name']);
+            return $data;
         }
 
         if ($this->flush) {
@@ -89,7 +99,7 @@ class SettingsRepository implements SettingsInterface
         }
 
         if (Cache::missing($this->cache_key())) {
-            Cache::add($this->cache_key(), $this->query()->pluck($this->columns['value'], $this->columns['name']), $this->cache_ttl);
+            Cache::add($this->cache_key(), $data, $this->cache_ttl);
         }
 
         return Cache::get($this->cache_key());
@@ -140,16 +150,6 @@ class SettingsRepository implements SettingsInterface
         $this->flush();
 
         return $value;
-    }
-
-    protected function settable(?string $key = null): null|string|array
-    {
-        $settable = [
-            'type' => is_object($this->settable) ? get_class($this->settable) : $this->settable,
-            'id' => is_object($this->settable) ? $this->settable?->id : null,
-        ];
-
-        return $key ? $settable[$key] : $settable;
     }
 
     /**
@@ -218,6 +218,16 @@ class SettingsRepository implements SettingsInterface
     public function flush(): bool
     {
         return config('settings.cache.enable') ? (bool) Cache::forget($this->cache_key()) : true;
+    }
+
+    protected function settable(?string $key = null): null|string|array
+    {
+        $settable = [
+            'type' => is_object($this->settable) ? get_class($this->settable) : $this->settable,
+            'id' => is_object($this->settable) ? $this->settable?->id : null,
+        ];
+
+        return $key ? $settable[$key] : $settable;
     }
 
     /**

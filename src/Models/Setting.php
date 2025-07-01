@@ -14,7 +14,7 @@ class Setting extends Model
 
     public function scopeGroup($query, string|array $name)
     {
-        return $query->whereGroup($name);
+        return $query->whereIn('group', (array) $name);
     }
 
     public function scopeFor($query, string|object $settable)

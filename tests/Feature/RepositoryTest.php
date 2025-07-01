@@ -9,7 +9,9 @@ use SolomonOchepa\Settings\Tests\App\Models\User;
 
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
-beforeEach(function () {});
+beforeEach(function () {
+    config(['settings.cache.enable' => false]);
+});
 
 test('add() is an alias for set()', function () {
     Settings::add('site_name', 'MySite');
@@ -56,8 +58,10 @@ test('delete() permanently removes a trashed setting', function () {
 
 test('flush() clears the cache', function () {
     Cache::shouldReceive('forget')->once()->with('settings.default_');
-    $repo = new SettingsRepository;
-    $repo->flush();
+
+    config(['settings.cache.enable' => true]);
+
+    (new SettingsRepository)->flush();
 });
 
 test('cache_key generates correct key for group and key', function () {
@@ -92,16 +96,6 @@ test('set() returns value for single key', function () {
 test('set() returns first value for array', function () {
     $result = Settings::set(['a' => 1, 'b' => 2]);
     expect($result)->toEqual(1);
-});
-
-test('group() returns default and sets group', function () {
-    expect(Settings::group())->toEqual('default');
-
-    Settings::group('user');
-    expect(Settings::group())->toEqual(['user']);
-
-    Settings::group(['a', 'b']);
-    expect(Settings::group())->toEqual(['a', 'b']);
 });
 
 test('for() set settable and get settings', function () {
@@ -245,9 +239,8 @@ test('allows same setting in different groups', function () {
     Settings::group('user')->set('name', 'Users');
     Settings::group('product')->set('name', 'Products');
 
-    // dd(Settings::group(['default', 'user', 'product'])->all());
-
-    // expect(settings()->group(['user', 'product'])->all())->toHaveCount(2);
+    expect(settings()->group(['user', 'product'])->all())->toHaveCount(2);
+    expect(settings()->get('name'))->toEqual('Laravel');
     expect(settings()->group('user')->get('name'))->toEqual('Users');
     expect(settings()->group('product')->get('name'))->toEqual('Products');
 });
