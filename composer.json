@@ -46,7 +46,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "SolomonOchepa\\Settings\\Tests\\": "tests/"
+            "SolomonOchepa\\Settings\\Tests\\": "tests/",
+            "SolomonOchepa\\Settings\\Tests\\App\\": "tests/App/app/",
+            "SolomonOchepa\\Settings\\Tests\\Database\\Factories\\": "tests/App/database/factories/"
         }
     },
     "extra": {
