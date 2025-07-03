@@ -50,9 +50,8 @@ class SettingsServiceProvider extends ServiceProvider
         ], 'settings-config');
 
         // Load & Publish migration
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
         $this->publishes([
-            __DIR__.'/database/migrations/create_settings_table.php' => $this->getMigrationFileName('create_settings_table.php'),
+            __DIR__.'/database/migrations/0001_01_01_000001_create_settings_table.php' => $this->getMigrationFileName('create_settings_table.php'),
         ], 'settings-migrations');
     }
 
