@@ -11,7 +11,9 @@ abstract class TestCase extends OrchestraTestCase
     {
         parent::setUp();
 
+        // Load the migrations manually for testing
         $this->loadMigrationsFrom(__DIR__.'/App/database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../src/database/migrations');
     }
 
     /**
