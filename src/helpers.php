@@ -10,8 +10,10 @@ if (! function_exists('settings')) {
      * Usage:
      * - settings('name') => get a specific setting value
      * - settings(['name' => 'value']) => add new setting(s)
+     *
+     * @return SettingsInterface
      */
-    function settings(null|string|array $key = null, $default = null): ?SettingsInterface
+    function settings(null|string|array $key = null, $default = null): mixed
     {
         try {
             $settings = app(SettingsInterface::class);
