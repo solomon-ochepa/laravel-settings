@@ -252,3 +252,152 @@ test('retrieves grouped setting via facade', function () {
 
     $this->assertDatabaseHas('settings', ['name' => 'name', 'group' => 'user']);
 });
+
+test('remember() returns existing setting if it exists and is truthy', function () {
+    Settings::set('existing_key', 'existing_value');
+
+    $result = Settings::remember('existing_key', 'default_value');
+
+    expect($result)->toEqual('existing_value');
+    // Should not create a new setting
+    expect(Settings::all())->toHaveCount(1);
+});
+
+test('remember() sets and returns default when setting does not exist', function () {
+    $this->assertDatabaseMissing('settings', ['name' => 'new_key']);
+
+    $result = Settings::remember('new_key', 'default_value');
+
+    expect($result)->toEqual('default_value');
+    $this->assertDatabaseHas('settings', ['name' => 'new_key', 'value' => 'default_value']);
+});
+
+test('remember() sets and returns default when setting exists but is falsy', function () {
+    $this->assertDatabaseMissing('settings', ['name' => 'null_key']);
+
+    // Test with null value
+    Settings::set('null_key', null);
+    $result = Settings::remember('null_key', 'default_for_null');
+    expect($result)->toEqual('default_for_null');
+    expect(Settings::get('null_key'))->toEqual('default_for_null');
+
+    // Test with false value
+    Settings::set('false_key', false);
+    // dd(Settings::all());
+    $result = Settings::remember('false_key', 'default_for_false');
+    expect($result)->toEqual('default_for_false');
+    expect(Settings::get('false_key'))->toEqual('default_for_false');
+
+    // Test with empty string
+    Settings::set('empty_key', '');
+    $result = Settings::remember('empty_key', 'default_for_empty');
+    expect($result)->toEqual('default_for_empty');
+    expect(Settings::get('empty_key'))->toEqual('default_for_empty');
+
+    // Test with zero
+    Settings::set('zero_key', 0);
+    $result = Settings::remember('zero_key', 'default_for_zero');
+    expect($result)->toEqual('default_for_zero');
+    expect(Settings::get('zero_key'))->toEqual('default_for_zero');
+});
+
+test('remember() works with truthy values that might be considered falsy in other contexts', function () {
+    // Test with string "0"
+    Settings::set('string_zero', '0');
+    $result = Settings::remember('string_zero', 'default_value');
+    expect($result)->toEqual('0');
+
+    // Test with array containing false
+    Settings::set('array_with_false', [false]);
+    $result = Settings::remember('array_with_false', 'default_value');
+    expect($result)->toEqual([false]);
+});
+
+test('remember() works with different data types as defaults', function () {
+    // Test with array default
+    $result = Settings::remember('array_key', ['default', 'array']);
+    expect($result)->toEqual(['default', 'array']);
+    expect(Settings::get('array_key'))->toEqual(['default', 'array']);
+
+    // Test with object default
+    $object = (object) ['key' => 'value'];
+    $result = Settings::remember('object_key', $object);
+    expect($result)->toEqual($object);
+    expect(Settings::get('object_key'))->toEqual($object);
+
+    // Test with numeric default
+    $result = Settings::remember('numeric_key', 42);
+    expect($result)->toEqual(42);
+    expect(Settings::get('numeric_key'))->toEqual(42);
+
+    // Test with boolean true default
+    $result = Settings::remember('bool_key', true);
+    expect($result)->toEqual(true);
+    expect(Settings::get('bool_key'))->toEqual(true);
+});
+
+test('remember() works with null as default', function () {
+    $result = Settings::remember('null_default_key', null);
+
+    expect($result)->toBeNull();
+    expect(Settings::get('null_default_key'))->toBeNull();
+    $this->assertDatabaseHas('settings', ['name' => 'null_default_key', 'value' => null]);
+});
+
+test('remember() works with groups', function () {
+    // Set a value in admin group
+    Settings::group('admin')->set('theme', 'admin_theme');
+
+    // Remember should return existing value from admin group
+    $result = Settings::group('admin')->remember('theme', 'default_theme');
+    expect($result)->toEqual('admin_theme');
+
+    // Remember should set default in user group (different group)
+    $result = Settings::group('user')->remember('theme', 'user_default_theme');
+    expect($result)->toEqual('user_default_theme');
+
+    // Verify both groups have their own values
+    expect(Settings::group('admin')->get('theme'))->toEqual('admin_theme');
+    expect(Settings::group('user')->get('theme'))->toEqual('user_default_theme');
+});
+
+test('remember() works with user-specific settings', function () {
+    $user1 = User::factory()->create();
+    $user2 = User::factory()->create();
+
+    // Set a preference for user1
+    Settings::for($user1)->set('preference', 'user1_pref');
+
+    // Remember should return existing value for user1
+    $result = Settings::for($user1)->remember('preference', 'default_pref');
+    expect($result)->toEqual('user1_pref');
+
+    // Remember should set default for user2 (different user)
+    $result = Settings::for($user2)->remember('preference', 'user2_default');
+    expect($result)->toEqual('user2_default');
+
+    // Verify both users have their own values
+    expect(Settings::for($user1)->get('preference'))->toEqual('user1_pref');
+    expect(Settings::for($user2)->get('preference'))->toEqual('user2_default');
+});
+
+test('remember() using helper function', function () {
+    $result = settings()->remember('helper_key', 'helper_default');
+
+    expect($result)->toEqual('helper_default');
+    expect(settings()->get('helper_key'))->toEqual('helper_default');
+});
+
+test('remember() handles complex scenarios', function () {
+    // Test overwriting a falsy value with remember
+    Settings::set('complex_key', false);
+    expect(Settings::get('complex_key'))->toBeFalse();
+
+    $result = Settings::remember('complex_key', 'new_value');
+    expect($result)->toEqual('new_value');
+    expect(Settings::get('complex_key'))->toEqual('new_value');
+
+    // Now remember should return the truthy value
+    $result = Settings::remember('complex_key', 'another_default');
+    expect($result)->toEqual('new_value'); // Should return existing, not default
+});
