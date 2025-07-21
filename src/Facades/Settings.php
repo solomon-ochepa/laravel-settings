@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static self user(): self
  * @method static Illuminate\Support\Collection all(): Illuminate\Support\Collection
  * @method static mixed my(string $key, mixed $default = null): mixed
+ * @method static mixed remember(string $key, mixed $default): mixed
  * @method static mixed get(string $key, mixed $default = null): mixed
  * @method static mixed set(string|array $key, mixed $value = null): mixed
  * @method static bool has(string $key): bool

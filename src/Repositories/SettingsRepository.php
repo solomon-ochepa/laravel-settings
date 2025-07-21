@@ -72,15 +72,15 @@ class SettingsRepository implements SettingsInterface
      */
     public function all(): Collection
     {
+        $data = collect();
+
         if (! Schema::hasTable(config('settings.table'))) {
             if (config('app.debug', false)) {
                 session()->flash('#settings table not found.');
             }
 
-            return collect();
+            return $data;
         }
-
-        $data = collect();
 
         if (is_array($this->group) and count($this->group) > 1) {
             foreach ($this->group as $group) {
@@ -111,6 +111,14 @@ class SettingsRepository implements SettingsInterface
     public function my(string $key, mixed $default = null): mixed
     {
         return $this->user()->get($key, $default);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function remember(string $key, mixed $default): mixed
+    {
+        return ($this->has($key) and $this->get($key)) ? $this->get($key) : $this->set($key, $default);
     }
 
     /**

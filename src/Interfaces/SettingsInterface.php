@@ -32,6 +32,11 @@ interface SettingsInterface
     public function my(string $key, mixed $default = null): mixed;
 
     /**
+     * Get a setting from storage by key, or set it if it doesn't exist.
+     */
+    public function remember(string $key, mixed $default): mixed;
+
+    /**
      * Get a setting from storage by key.
      */
     public function get(string $key, mixed $default = null): mixed;
