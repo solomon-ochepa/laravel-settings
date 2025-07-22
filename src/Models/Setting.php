@@ -10,7 +10,27 @@ class Setting extends Model
 {
     use HasUuids, SoftDeletes;
 
-    protected $guarded = ['id', 'updated_at', 'deleted_at'];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'value',
+        'group',
+        'settable_type',
+        'settable_id',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        // 'value' => 'json',
+    ];
 
     public function scopeGroup($query, string|array $name)
     {
