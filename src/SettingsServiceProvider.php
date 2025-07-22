@@ -47,12 +47,12 @@ class SettingsServiceProvider extends ServiceProvider
         // Load & Publish config
         $this->publishes([
             __DIR__.'/../config/settings.php' => config_path('settings.php'),
-        ], 'settings-config');
+        ], 'settings:config');
 
         // Load & Publish migration
         $this->publishes([
             __DIR__.'/database/migrations/0001_01_01_000001_create_settings_table.php' => $this->getMigrationFileName('create_settings_table.php'),
-        ], 'settings-migrations');
+        ], 'settings:migrations');
     }
 
     /**
