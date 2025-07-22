@@ -31,7 +31,7 @@ return [
     ],
 
     'cache' => [
-        'enable' => true,
+        'enable' => false,
 
         /*
          * By default, all settings are cached for 24 hours to enhance performance.
