@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('settings', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->json('value');
+            $table->json('value')->nullable();
             $table->string('group')->default('default');
             $table->nullableUuidMorphs('settable');
             $table->timestamps();
