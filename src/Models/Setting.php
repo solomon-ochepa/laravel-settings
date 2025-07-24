@@ -29,7 +29,7 @@ class Setting extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        // 'value' => 'json',
+        'value' => 'json',
     ];
 
     public function scopeGroup($query, string|array $name)
