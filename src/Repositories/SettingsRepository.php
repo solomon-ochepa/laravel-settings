@@ -32,7 +32,7 @@ class SettingsRepository implements SettingsInterface
         $this->columns['name'] = config('settings.columns.name', 'name');
         $this->columns['value'] = config('settings.columns.value', 'value');
         $this->cache_key = config('settings.cache.key', 'settings');
-        $this->cache_ttl = config('settings.cache.ttl', now()->addHours(24));
+        $this->cache_ttl = config('settings.cache.ttl', DateInterval::createFromDateString('tomorrow'));
     }
 
     /**
