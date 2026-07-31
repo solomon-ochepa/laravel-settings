@@ -27,7 +27,7 @@ if (! function_exists('settings')) {
             }
 
             return $settings->get($key, value($default));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error($e->getMessage());
 
             return $default;

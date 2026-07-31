@@ -3,6 +3,7 @@
 namespace SolomonOchepa\Settings\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use SolomonOchepa\Settings\Interfaces\SettingsInterface;
 
 /**
  * Facade for accessing the Settings service.
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Facade;
  * This class provides a static interface to the underlying
  * Settings service, which implements the SettingsInterface.
  *
- * @see \SolomonOchepa\Settings\Interfaces\SettingsInterface
+ * @see SettingsInterface
  *
  * @method static self group(string $name): self
  * @method static self for(string|object $settable): self
