@@ -1,8 +1,8 @@
-/node_modules
-/vendor
 /.idea
 /.vscode
+/composer.lock
+/node_modules
+/vendor
+.DS_Store
 .env
 .phpunit.result.cache
-/composer.lock
-.DS_Store
