@@ -2,6 +2,7 @@
 
 namespace SolomonOchepa\Settings\Tests;
 
+use Illuminate\Foundation\Application;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use SolomonOchepa\Settings\Tests\App\Models\User;
 
@@ -17,7 +18,7 @@ abstract class TestCase extends OrchestraTestCase
     }
 
     /**
-     * @param  \Illuminate\Foundation\Application  $app
+     * @param  Application  $app
      */
     protected function getEnvironmentSetUp($app)
     {
@@ -41,7 +42,7 @@ abstract class TestCase extends OrchestraTestCase
     }
 
     /**
-     * @param  \Illuminate\Foundation\Application  $app
+     * @param  Application  $app
      */
     protected function getPackageProviders($app): array
     {
@@ -49,7 +50,7 @@ abstract class TestCase extends OrchestraTestCase
     }
 
     /**
-     * @param  \Illuminate\Foundation\Application  $app
+     * @param  Application  $app
      * @return array
      */
     protected function getPackageAliases($app)

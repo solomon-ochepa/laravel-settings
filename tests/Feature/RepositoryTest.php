@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -7,7 +8,7 @@ use SolomonOchepa\Settings\Facades\Settings;
 use SolomonOchepa\Settings\Repositories\SettingsRepository;
 use SolomonOchepa\Settings\Tests\App\Models\User;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     config(['settings.cache.enable' => false]);
@@ -67,7 +68,7 @@ test('flush() clears the cache', function () {
 test('cache_key generates correct key for group and key', function () {
     $repo = new SettingsRepository;
     $repo->group('admin');
-    $key = (new \ReflectionClass($repo))->getMethod('cache_key');
+    $key = (new ReflectionClass($repo))->getMethod('cache_key');
     $key->setAccessible(true);
     expect($key->invoke($repo, 'foo'))->toEqual('settings.admin.foo_');
 });

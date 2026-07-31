@@ -1,5 +1,7 @@
 <?php
 
+use SolomonOchepa\Settings\Models\Setting;
+
 return [
     /*
      * Which Eloquent model should be used to retrieve your settings?
@@ -7,7 +9,7 @@ return [
      *
      * Your custom model needs to implement the SolomonOchepa\Settings\Models\Setting class.
      */
-    'model' => env('SETTINGS_MODEL', SolomonOchepa\Settings\Models\Setting::class),
+    'model' => env('SETTINGS_MODEL', Setting::class),
 
     /*
      * Table name
@@ -38,7 +40,7 @@ return [
          *
          * When settings are updated, the cache is automatically flushed.
          */
-        'ttl' => env('SETTINGS_CACHE_TTL', \DateInterval::createFromDateString('24 hours')),
+        'ttl' => env('SETTINGS_CACHE_TTL', DateInterval::createFromDateString('24 hours')),
 
         /*
          * The cache key used to store all settings.
