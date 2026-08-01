@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SolomonOchepa\Settings\Repositories;
 
 use DateInterval;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use SolomonOchepa\Settings\Interfaces\SettingsInterface;
+use SolomonOchepa\Settings\Models\Setting;
 
 class SettingsRepository implements SettingsInterface
 {
@@ -32,7 +34,7 @@ class SettingsRepository implements SettingsInterface
         $this->columns['name'] = config('settings.columns.name', 'name');
         $this->columns['value'] = config('settings.columns.value', 'value');
         $this->cache_key = config('settings.cache.key', 'settings');
-        $this->cache_ttl = config('settings.cache.ttl', DateInterval::createFromDateString('tomorrow'));
+        $this->cache_ttl = config('settings.cache.ttl', DateInterval::createFromDateString('2 hours'));
     }
 
     /**
@@ -48,13 +50,9 @@ class SettingsRepository implements SettingsInterface
     /**
      * {@inheritdoc}
      */
-    public function for(string|object $settable): self
+    public function for(null|string|object $settable = null): self
     {
-        if (! $settable) {
-            return $this->settable;
-        }
-
-        $this->settable = $settable;
+        $this->settable = $settable ?: null;
 
         return $this;
     }
@@ -72,37 +70,39 @@ class SettingsRepository implements SettingsInterface
      */
     public function all(): Collection
     {
-        $data = collect();
-
         if (! Schema::hasTable(config('settings.table'))) {
             if (config('app.debug', false)) {
                 session()->flash('#settings table not found.');
             }
 
-            return $data;
-        }
-
-        if (is_array($this->group) and count($this->group) > 1) {
-            foreach ($this->group as $group) {
-                $data->put($group, $this->group($group)->query()->pluck($this->columns['value'], $this->columns['name']));
-            }
-        } else {
-            $data = $this->query()->pluck($this->columns['value'], $this->columns['name']);
-        }
-
-        if (! config('settings.cache.enable')) {
-            return $data;
+            return collect();
         }
 
         if ($this->flush) {
             Cache::flush();
         }
 
-        if (Cache::missing($this->cache_key())) {
-            Cache::add($this->cache_key(), $data, $this->cache_ttl);
+        if (is_array($this->group) and count($this->group) > 1) {
+            $data = collect();
+
+            foreach ($this->group as $group) {
+                $data->put($group, (clone $this)->group($group)->all());
+            }
+
+            return $data;
         }
 
-        return Cache::get($this->cache_key());
+        $key = $this->cache_key();
+
+        if (Cache::has($key)) {
+            return Cache::get($key);
+        }
+
+        $data = $this->query()->pluck($this->columns['value'], $this->columns['name']);
+
+        Cache::add($key, $data, $this->cache_ttl);
+
+        return $data;
     }
 
     /**
@@ -118,7 +118,13 @@ class SettingsRepository implements SettingsInterface
      */
     public function remember(string $key, mixed $default): mixed
     {
-        return ($this->has($key) and $this->get($key)) ? $this->get($key) : $this->set($key, $default);
+        $settings = $this->all();
+
+        if ($settings->has($key)) {
+            return $settings->get($key);
+        }
+
+        return $this->set($key, $default);
     }
 
     /**
@@ -135,6 +141,10 @@ class SettingsRepository implements SettingsInterface
     public function set(string|array $key, mixed $value = null): mixed
     {
         if (is_array($key)) {
+            if ($key === []) {
+                return null;
+            }
+
             foreach ($key as $_key => $value) {
                 $this->set($_key, $value);
             }
@@ -225,14 +235,14 @@ class SettingsRepository implements SettingsInterface
      */
     public function flush(): bool
     {
-        return config('settings.cache.enable') ? (bool) Cache::forget($this->cache_key()) : true;
+        return (bool) Cache::forget($this->cache_key());
     }
 
     protected function settable(?string $key = null): null|string|array
     {
         $settable = [
             'type' => is_object($this->settable) ? get_class($this->settable) : $this->settable,
-            'id' => is_object($this->settable) ? $this->settable?->id : null,
+            'id' => is_object($this->settable) ? $this->settable->id : null,
         ];
 
         return $key ? $settable[$key] : $settable;
@@ -240,27 +250,48 @@ class SettingsRepository implements SettingsInterface
 
     /**
      * Get settings cache key.
+     *
+     * The group/type/id/key components are hashed as a single structured
+     * value (rather than concatenated as raw strings) so that a crafted
+     * settable string (e.g. "App\Models\User_123") can never collide with
+     * the cache key of a real, unrelated (type, id) scope.
      */
     protected function cache_key(?string $key = null): string
     {
-        return $this->cache_key.($this->group ? '.'.implode('_', (array) $this->group) : '').($key ? '.'.$key : '').'_';
+        $identity = json_encode([
+            (array) $this->group,
+            $this->settable('type'),
+            $this->settable('id'),
+            $key,
+        ]);
+
+        return $this->cache_key.'.'.sha1((string) $identity);
     }
 
     /**
      * Get settings eloquent model.
+     *
+     * A custom model configured via settings.model must extend the base
+     * Setting model.
      */
-    protected function model(): Model
+    protected function model(): Setting
     {
-        return app(config('settings.model', '\SolomonOchepa\Settings\Models\Setting'));
+        return app(config('settings.model', Setting::class));
     }
 
     /**
      * Get the model query builder.
+     *
+     * @return Builder<Setting>
      */
     protected function query(): Builder
     {
         return $this->model()
             ->when($this->group, fn ($q) => $q->group($this->group))
-            ->when($this->settable, fn ($q) => $q->for($this->settable));
+            ->when(
+                $this->settable,
+                fn ($q) => $q->for($this->settable),
+                fn ($q) => $q->whereNull('settable_type')->whereNull('settable_id'),
+            );
     }
 }

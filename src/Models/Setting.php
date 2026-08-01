@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SolomonOchepa\Settings\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,7 +16,7 @@ class Setting extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'name',
@@ -32,15 +35,15 @@ class Setting extends Model
         'value' => 'json',
     ];
 
-    public function scopeGroup($query, string|array $name)
+    public function scopeGroup(Builder $query, string|array $name): Builder
     {
         return $query->whereIn('group', (array) $name);
     }
 
-    public function scopeFor($query, string|object $settable)
+    public function scopeFor(Builder $query, string|object $settable): Builder
     {
         return $query
             ->where('settable_type', is_object($settable) ? get_class($settable) : $settable)
-            ->where('settable_id', is_object($settable) ? $settable?->id : null);
+            ->where('settable_id', is_object($settable) ? $settable->id : null);
     }
 }

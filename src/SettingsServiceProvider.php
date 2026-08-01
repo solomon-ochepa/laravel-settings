@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SolomonOchepa\Settings;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 use SolomonOchepa\Settings\Interfaces\SettingsInterface;
+use SolomonOchepa\Settings\Repositories\SettingsRepository;
 
 class SettingsServiceProvider extends ServiceProvider
 {
@@ -27,20 +30,12 @@ class SettingsServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/settings.php', 'settings');
 
         // bind Settings repository
-        $this->app->bind(
-            'SolomonOchepa\Settings\Interfaces\SettingsInterface',
-            'SolomonOchepa\Settings\Repositories\SettingsRepository'
-        );
+        $this->app->bind(SettingsInterface::class, SettingsRepository::class);
     }
 
     protected function publish(): void
     {
         if (! $this->app->runningInConsole()) {
-            return;
-        }
-
-        if (! function_exists('config_path')) {
-            // function not available and 'publish' not relevant in Lumen
             return;
         }
 

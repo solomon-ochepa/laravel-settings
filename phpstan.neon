@@ -1,0 +1,18 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5
+
+    paths:
+        - src
+
+    excludePaths:
+        - src/database/migrations
+
+    ignoreErrors:
+        -
+            # HasSettings is a public trait meant to be used on consumer
+            # models (e.g. a User model), so it is never used within src.
+            identifier: trait.unused
+            path: src/Traits/HasSettings.php
