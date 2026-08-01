@@ -61,6 +61,11 @@ interface SettingsInterface
     public function set(string|array $key, mixed $value = null): mixed;
 
     /**
+     * Alias for set().
+     */
+    public function add(string|array $key, mixed $value = null): mixed;
+
+    /**
      * Check if a setting exists.
      */
     public function has(string $key): bool;

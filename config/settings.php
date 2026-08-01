@@ -35,14 +35,14 @@ return [
     ],
 
     'cache' => [
-        'enable' => false,
-
         /*
-         * By default, all settings are cached for 24 hours to enhance performance.
+         * All settings are always cached to reduce SQL queries to zero.
+         * The cache is flushed automatically whenever settings are written,
+         * trashed, restored, or deleted.
          *
-         * When settings are updated, the cache is automatically flushed.
+         * By default, settings are cached for 2 hours.
          */
-        'ttl' => env('SETTINGS_CACHE_TTL', DateInterval::createFromDateString('24 hours')),
+        'ttl' => env('SETTINGS_CACHE_TTL', DateInterval::createFromDateString('2 hours')),
 
         /*
          * The cache key used to store all settings.
