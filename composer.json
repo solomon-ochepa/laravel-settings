@@ -25,7 +25,8 @@
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-drift": "^4.1",
         "pestphp/pest-plugin-profanity": "^4.2",
-        "pestphp/pest-plugin-laravel": "^4.1"
+        "pestphp/pest-plugin-laravel": "^4.1",
+        "larastan/larastan": "^3.0"
     },
     "autoload": {
         "classmap": [
@@ -56,8 +57,12 @@
         }
     },
     "scripts": {
+        "profanity": "./vendor/bin/pest --profanity",
         "test": "./vendor/bin/pest --profanity && ./vendor/bin/pest",
-        "lint": "./vendor/bin/pint"
+        "coverage": "./vendor/bin/pest --coverage --min=80",
+        "lint": "./vendor/bin/pint",
+        "analyse": "./vendor/bin/phpstan analyse --memory-limit=512M",
+        "doctor": "./vendor/bin/phpstan analyse --memory-limit=512M && ./vendor/bin/pest --profanity && ./vendor/bin/pint --test && ./vendor/bin/pest --coverage --min=80"
     },
     "config": {
         "allow-plugins": {

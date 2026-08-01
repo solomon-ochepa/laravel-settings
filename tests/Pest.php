@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use SolomonOchepa\Settings\Repositories\SettingsRepository;
 use SolomonOchepa\Settings\Tests\TestCase;
 
 /*
@@ -19,6 +21,48 @@ use SolomonOchepa\Settings\Tests\TestCase;
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+/*
+| Unit tests still need the Testbench app (container/config) to construct
+| repositories and resolve models, but must never touch the database —
+| that's what keeps them fast and what separates them from Feature tests.
+| RefreshDatabase is intentionally NOT applied here.
+*/
+
+pest()->extend(TestCase::class)
+    ->in('Unit');
+
+/*
+|--------------------------------------------------------------------------
+| Global Setup
+|--------------------------------------------------------------------------
+|
+| Applies to every test in the suite, so individual test files don't need
+| to repeat it. The cache store (array driver) persists across tests within
+| the same process, unlike the database, so it must be reset explicitly.
+|
+*/
+
+beforeEach(function () {
+    Cache::flush();
+});
+
+/*
+|--------------------------------------------------------------------------
+| Datasets
+|--------------------------------------------------------------------------
+|
+| Named datasets registered here can be reused across test files via
+| ->with('dataset name').
+|
+*/
+
+dataset('falsy setting values', [
+    'null' => [null],
+    'false' => [false],
+    'empty string' => [''],
+    'zero' => [0],
+]);
 
 /*
 |--------------------------------------------------------------------------
@@ -47,3 +91,15 @@ expect()->extend('toBeOne', function () {
 */
 
 function something() {}
+
+/**
+ * Invoke the protected SettingsRepository::cache_key() method for assertions.
+ * Shared by both the Unit (key-generation) and Feature (behavioral) tests.
+ */
+function cacheKeyOf(SettingsRepository $repository, ?string $key = null): string
+{
+    $method = (new ReflectionClass($repository))->getMethod('cache_key');
+    $method->setAccessible(true);
+
+    return $method->invoke($repository, $key);
+}

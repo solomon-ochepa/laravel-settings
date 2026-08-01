@@ -39,11 +39,6 @@ class SettingsServiceProvider extends ServiceProvider
             return;
         }
 
-        if (! function_exists('config_path')) {
-            // function not available and 'publish' not relevant in Lumen
-            return;
-        }
-
         // Load & Publish config
         $this->publishes([
             __DIR__.'/../config/settings.php' => config_path('settings.php'),
