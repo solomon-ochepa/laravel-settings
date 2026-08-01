@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SolomonOchepa\Settings\Tests\App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use SolomonOchepa\Settings\Tests\Database\Factories\UserFactory;
@@ -37,7 +40,7 @@ class User extends Authenticatable
         ];
     }
 
-    protected static function newFactory()
+    protected static function newFactory(): Factory
     {
         return UserFactory::new();
     }

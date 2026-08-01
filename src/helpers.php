@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Log;
 use SolomonOchepa\Settings\Interfaces\SettingsInterface;
 
@@ -8,12 +10,11 @@ if (! function_exists('settings')) {
      * Get setting(s) from the database or add a new one if an array is passed.
      *
      * Usage:
+     * - settings() => get the SettingsInterface instance
      * - settings('name') => get a specific setting value
      * - settings(['name' => 'value']) => add new setting(s)
-     *
-     * @return SettingsInterface
      */
-    function settings(null|string|array $key = null, $default = null): mixed
+    function settings(null|string|array $key = null, mixed $default = null): mixed
     {
         try {
             $settings = app(SettingsInterface::class);
@@ -30,7 +31,7 @@ if (! function_exists('settings')) {
         } catch (Throwable $e) {
             Log::error($e->getMessage());
 
-            return $default;
+            return value($default);
         }
     }
 }

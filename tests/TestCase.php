@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SolomonOchepa\Settings\Tests;
 
 use Illuminate\Foundation\Application;
@@ -51,9 +53,8 @@ abstract class TestCase extends OrchestraTestCase
 
     /**
      * @param  Application  $app
-     * @return array
      */
-    protected function getPackageAliases($app)
+    protected function getPackageAliases($app): array
     {
         return [
             'Settings' => 'SolomonOchepa\Settings\Facades\Settings',
@@ -63,7 +64,7 @@ abstract class TestCase extends OrchestraTestCase
     /**
      * Set inputs on settings ui
      */
-    protected function configureInputs($inputs): void
+    protected function configureInputs(array $inputs): void
     {
         config([
             'app_settings.sections' => [

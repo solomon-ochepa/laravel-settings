@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SolomonOchepa\Settings\Repositories;
 
 use DateInterval;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use SolomonOchepa\Settings\Interfaces\SettingsInterface;
+use SolomonOchepa\Settings\Models\Setting;
 
 class SettingsRepository implements SettingsInterface
 {
@@ -240,6 +242,11 @@ class SettingsRepository implements SettingsInterface
 
     /**
      * Get settings cache key.
+     *
+     * The group/type/id/key components are hashed as a single structured
+     * value (rather than concatenated as raw strings) so that a crafted
+     * settable string (e.g. "App\Models\User_123") can never collide with
+     * the cache key of a real, unrelated (type, id) scope.
      */
     protected function cache_key(?string $key = null): string
     {
@@ -248,14 +255,19 @@ class SettingsRepository implements SettingsInterface
 
     /**
      * Get settings eloquent model.
+     *
+     * A custom model configured via settings.model must extend the base
+     * Setting model.
      */
-    protected function model(): Model
+    protected function model(): Setting
     {
-        return app(config('settings.model', '\SolomonOchepa\Settings\Models\Setting'));
+        return app(config('settings.model', Setting::class));
     }
 
     /**
      * Get the model query builder.
+     *
+     * @return Builder<Setting>
      */
     protected function query(): Builder
     {

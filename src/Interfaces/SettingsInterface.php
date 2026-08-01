@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SolomonOchepa\Settings\Interfaces;
 
 use Illuminate\Support\Collection;
@@ -7,32 +9,44 @@ use Illuminate\Support\Collection;
 interface SettingsInterface
 {
     /**
-     * Set/Get the group name for settings.
+     * Scope settings to one or more groups.
+     *
+     * Passing multiple groups makes `all()` return a collection keyed by
+     * group name instead of a flat key/value collection.
      */
     public function group(string|array $name): self;
 
     /**
-     * Bind settings to a specific entity.
+     * Scope settings to a specific entity, e.g. an Eloquent model instance.
+     *
+     * Passing a falsy value (null, empty string, etc.) clears the scope so
+     * subsequent calls read/write global, unscoped settings.
      */
-    public function for(string|object $settable): self;
+    public function for(null|string|object $settable = null): self;
 
     /**
-     * Bind settings to the auth user.
+     * Scope settings to the currently authenticated user.
+     *
+     * Falls back to the global, unscoped settings when there is no
+     * authenticated user (e.g. a guest request).
      */
     public function user(): self;
 
     /**
-     * Get all settings from storage as key value pair.
+     * Get all settings in the current group/settable scope as a key/value
+     * collection, served from cache when available.
      */
     public function all(): Collection;
 
     /**
-     * Get settings for the auth() user.
+     * Get a setting scoped to the currently authenticated user.
      */
     public function my(string $key, mixed $default = null): mixed;
 
     /**
-     * Get a setting from storage by key, or set it if it doesn't exist.
+     * Get a setting from storage by key, or set and return $default if the
+     * key does not already exist. An existing falsy value (null, false, 0,
+     * '') is treated as present and is returned as-is, not overwritten.
      */
     public function remember(string $key, mixed $default): mixed;
 
@@ -72,7 +86,8 @@ interface SettingsInterface
     public function delete(string $key): mixed;
 
     /**
-     * Flush setting cache.
+     * Forget the cached settings for the current group/settable scope.
+     * Called automatically after set(), trash(), restore(), and delete().
      */
     public function flush(): bool;
 }
