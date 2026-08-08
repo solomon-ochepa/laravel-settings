@@ -58,11 +58,21 @@
     },
     "scripts": {
         "profanity": "./vendor/bin/pest --profanity",
-        "test": "./vendor/bin/pest --profanity && ./vendor/bin/pest",
-        "coverage": "./vendor/bin/pest --coverage --min=80",
+        "test": "./vendor/bin/pest",
+        "coverage": "./vendor/bin/pest --parallel --coverage --min=100",
         "lint": "./vendor/bin/pint",
         "analyse": "./vendor/bin/phpstan analyse --memory-limit=512M",
-        "doctor": "./vendor/bin/phpstan analyse --memory-limit=512M && ./vendor/bin/pest --profanity && ./vendor/bin/pint --test && ./vendor/bin/pest --coverage --min=80"
+        "doctor": [
+            "clear 2>/dev/null; clear 2>/dev/null; true",
+            "echo 'Running code analysis...'",
+            "@analyse",
+            "echo; echo 'Running code linting...'",
+            "./vendor/bin/pint --test",
+            "echo; echo 'Running profanity tests...'",
+            "@profanity",
+            "echo; echo 'Running code coverage...'",
+            "@coverage"
+        ]
     },
     "config": {
         "allow-plugins": {
