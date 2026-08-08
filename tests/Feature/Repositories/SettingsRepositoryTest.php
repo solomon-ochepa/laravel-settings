@@ -273,8 +273,8 @@ describe('caching', function () {
     it('caches the settings using the configured TTL', function () {
         $repo = new SettingsRepository;
 
-        Cache::shouldReceive('has')->once()->andReturn(false);
-        Cache::shouldReceive('add')->once()->with(Mockery::any(), Mockery::any(), $repo->cache_ttl);
+        Cache::shouldReceive('get')->once()->andReturn(null);
+        Cache::shouldReceive('put')->once()->with(Mockery::any(), Mockery::any(), $repo->cache_ttl);
 
         $repo->all();
     });
@@ -564,6 +564,83 @@ describe('chaining', function () {
 
         Settings::for(null); // must explicitly clear scope back to global
         expect(Settings::get('theme'))->toBeNull();
+    });
+});
+
+describe('return types', function () {
+    // One check per SettingsInterface method, matching its declared return
+    // type (self, Collection, bool, or a concrete type for the mixed ones).
+
+    it('group(), for(), and user() return self for chaining', function (Closure $call) {
+        expect($call(new SettingsRepository))->toBeInstanceOf(SettingsRepository::class);
+    })->with([
+        'group()' => [fn ($repo) => $repo->group('admin')],
+        'for()' => [fn ($repo) => $repo->for(User::factory()->make())],
+        'user()' => [fn ($repo) => $repo->user()],
+    ]);
+
+    it('all() returns a Collection', function () {
+        Settings::set('name', 'Settings');
+
+        expect(Settings::all())->toBeInstanceOf(Collection::class);
+    });
+
+    it('all() returns a Collection of Collections when scoped to multiple groups', function () {
+        $result = Settings::group(['admin', 'user'])->all();
+
+        expect($result)->toBeInstanceOf(Collection::class);
+        expect($result->get('admin'))->toBeInstanceOf(Collection::class);
+    });
+
+    it('my() returns the stored value, or null when missing', function () {
+        $this->be(User::factory()->create());
+        Settings::user()->set('theme', 'dark');
+
+        expect(Settings::my('theme'))->toBeString();
+        expect(Settings::my('missing_key'))->toBeNull();
+    });
+
+    it('remember() returns the stored or default value as given', function () {
+        expect(Settings::remember('new_key', 'default'))->toBeString();
+        expect(Settings::remember('numeric_key', 42))->toBeInt();
+    });
+
+    it('get() returns the stored value, or null when no default is given', function () {
+        Settings::set('name', 'Settings');
+
+        expect(Settings::get('name'))->toBeString();
+        expect(Settings::get('missing_key'))->toBeNull();
+    });
+
+    it('set() and add() return the value they were given', function (Closure $call) {
+        expect($call('name', 'Settings'))->toBeString();
+        expect($call('count', 5))->toBeInt();
+    })->with([
+        'set()' => [fn (...$args) => Settings::set(...$args)],
+        'add()' => [fn (...$args) => Settings::add(...$args)],
+    ]);
+
+    it('set() returns null for an empty array (no-op)', function () {
+        expect(Settings::set([]))->toBeNull();
+    });
+
+    it('has() and missing() return a strict bool', function () {
+        Settings::set('name', 'Settings');
+
+        expect(Settings::has('name'))->toBeBool();
+        expect(Settings::missing('name'))->toBeBool();
+    });
+
+    it('trash(), restore(), and delete() return the affected row count as an int', function () {
+        Settings::set('name', 'Settings');
+
+        expect(Settings::trash('name'))->toBeInt();
+        expect(Settings::restore('name'))->toBeInt();
+        expect(Settings::delete('name'))->toBeInt();
+    });
+
+    it('flush() returns a strict bool', function () {
+        expect((new SettingsRepository)->flush())->toBeBool();
     });
 });
 

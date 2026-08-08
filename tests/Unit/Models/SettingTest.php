@@ -2,8 +2,16 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Builder;
 use SolomonOchepa\Settings\Models\Setting;
 use SolomonOchepa\Settings\Tests\App\Models\User;
+
+it('scopeGroup() and scopeFor() return a Builder for chaining', function (Closure $call) {
+    expect($call())->toBeInstanceOf(Builder::class);
+})->with([
+    'scopeGroup()' => [fn () => Setting::query()->group('admin')],
+    'scopeFor()' => [fn () => Setting::query()->for(User::class)],
+]);
 
 describe('scopeGroup()', function () {
     it('filters by a single group', function () {

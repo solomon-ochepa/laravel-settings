@@ -9,6 +9,14 @@ it('returns the SettingsInterface instance when called with no arguments', funct
     expect(settings())->toBeInstanceOf(SettingsInterface::class);
 });
 
+it('returns a concrete value for the get/set shorthands', function (Closure $call, string $expectation) {
+    expect($call())->{$expectation}();
+})->with([
+    'settings("key")' => [fn () => settings('missing_key'), 'toBeNull'],
+    'settings("key", $default)' => [fn () => settings('missing_key', 'fallback'), 'toBeString'],
+    'settings([$key => $value])' => [fn () => settings(['name' => 'Settings']), 'toBeString'],
+]);
+
 it('evaluates a closure default on the happy path', function () {
     $result = settings('missing_key', fn () => 'lazily_computed');
 

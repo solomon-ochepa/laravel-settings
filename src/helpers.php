@@ -18,6 +18,11 @@ if (! function_exists('settings')) { // @codeCoverageIgnore
      * - settings() => get the SettingsInterface instance
      * - settings('name') => get a specific setting value
      * - settings(['name' => 'value']) => add new setting(s)
+     *
+     * @template TKey of null|string|array<string, mixed>
+     *
+     * @param  TKey  $key
+     * @return (TKey is null ? SettingsInterface : mixed)
      */
     function settings(null|string|array $key = null, mixed $default = null): mixed
     {
