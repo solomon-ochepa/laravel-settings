@@ -6,11 +6,14 @@ namespace SolomonOchepa\Settings\Repositories;
 
 use DateInterval;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
+use SolomonOchepa\Settings\Interfaces\Settable;
 use SolomonOchepa\Settings\Interfaces\SettingsInterface;
 use SolomonOchepa\Settings\Models\Setting;
 
@@ -18,27 +21,40 @@ class SettingsRepository implements SettingsInterface
 {
     public bool $flush = false;
 
+    /** @var string|array<int, string> */
     public string|array $group = [];
 
+    /** @var array<string, string> */
     protected array $columns = [];
 
     protected string $cache_key;
 
     public DateInterval $cache_ttl;
 
-    public mixed $settable = null;
+    public null|string|Model|Settable $settable = null;
 
     public function __construct()
     {
-        $this->group = config('settings.group.default', 'default');
-        $this->columns['name'] = config('settings.columns.name', 'name');
-        $this->columns['value'] = config('settings.columns.value', 'value');
-        $this->cache_key = config('settings.cache.key', 'settings');
-        $this->cache_ttl = config('settings.cache.ttl', DateInterval::createFromDateString('2 hours'));
+        $group = config('settings.group.default', 'default');
+        $this->group = match (true) {
+            is_string($group) => $group,
+            is_array($group) => array_values(array_map(strval(...), array_filter($group, is_scalar(...)))),
+            default => 'default',
+        };
+
+        $this->columns['name'] = Config::string('settings.columns.name', 'name');
+        $this->columns['value'] = Config::string('settings.columns.value', 'value');
+        $this->cache_key = Config::string('settings.cache.key', 'settings');
+
+        $default_ttl = DateInterval::createFromDateString('2 hours');
+        $cache_ttl = config('settings.cache.ttl', $default_ttl);
+        $this->cache_ttl = $cache_ttl instanceof DateInterval ? $cache_ttl : $default_ttl;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @param  string|array<int, string>  $name
      */
     public function group(string|array $name): self
     {
@@ -50,7 +66,7 @@ class SettingsRepository implements SettingsInterface
     /**
      * {@inheritdoc}
      */
-    public function for(null|string|object $settable = null): self
+    public function for(null|string|Model|Settable $settable = null): self
     {
         $this->settable = $settable ?: null;
 
@@ -67,11 +83,13 @@ class SettingsRepository implements SettingsInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @return Collection<string, mixed>
      */
     public function all(): Collection
     {
-        if (! Schema::hasTable(config('settings.table'))) {
-            if (config('app.debug', false)) {
+        if (! Schema::hasTable(Config::string('settings.table', 'settings'))) {
+            if (Config::boolean('app.debug', false)) {
                 session()->flash('#settings table not found.');
             }
 
@@ -139,6 +157,8 @@ class SettingsRepository implements SettingsInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param  string|array<string, mixed>  $key
      */
     public function set(string|array $key, mixed $value = null): mixed
     {
@@ -174,6 +194,8 @@ class SettingsRepository implements SettingsInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param  string|array<string, mixed>  $key
      */
     public function add(string|array $key, mixed $value = null): mixed
     {
@@ -199,19 +221,19 @@ class SettingsRepository implements SettingsInterface
     /**
      * {@inheritdoc}
      */
-    public function trash(string $key): mixed
+    public function trash(string $key): int
     {
         $trashed = $this->model()->where($this->columns['name'], $key)->delete();
 
         $this->flush();
 
-        return $trashed;
+        return is_int($trashed) ? $trashed : 0;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function restore(string $key): mixed
+    public function restore(string $key): int
     {
         $restored = $this->model()->onlyTrashed()->where($this->columns['name'], $key)->restore();
 
@@ -223,13 +245,13 @@ class SettingsRepository implements SettingsInterface
     /**
      * {@inheritdoc}
      */
-    public function delete(string $key): mixed
+    public function delete(string $key): int
     {
         $deleted = $this->model()->onlyTrashed()->where($this->columns['name'], $key)->forceDelete();
 
         $this->flush();
 
-        return $deleted;
+        return is_int($deleted) ? $deleted : 0;
     }
 
     /**
@@ -240,14 +262,26 @@ class SettingsRepository implements SettingsInterface
         return (bool) Cache::forget($this->cache_key());
     }
 
-    protected function settable(?string $key = null): null|string|array
+    /**
+     * @return array{type: ?string, id: null|int|string}
+     */
+    protected function settable(?string $key = null): null|int|string|array
     {
-        $settable = [
-            'type' => is_object($this->settable) ? get_class($this->settable) : $this->settable,
-            'id' => is_object($this->settable) ? $this->settable->id : null,
-        ];
+        $settable = $this->settable;
 
-        return $key ? $settable[$key] : $settable;
+        $type = is_object($settable) ? $settable::class : $settable;
+        $rawId = match (true) {
+            $settable instanceof Model => $settable->getKey(),
+            $settable instanceof Settable => $settable->getSettableKey(),
+            default => null,
+        };
+        $id = is_int($rawId) || is_string($rawId) ? $rawId : null;
+
+        return match ($key) {
+            'type' => $type,
+            'id' => $id,
+            default => ['type' => $type, 'id' => $id],
+        };
     }
 
     /**
@@ -278,7 +312,7 @@ class SettingsRepository implements SettingsInterface
      */
     protected function model(): Setting
     {
-        return app(config('settings.model', Setting::class));
+        return app(Config::string('settings.model', Setting::class));
     }
 
     /**
@@ -292,7 +326,7 @@ class SettingsRepository implements SettingsInterface
             ->when($this->group, fn ($q) => $q->group($this->group))
             ->when(
                 $this->settable,
-                fn ($q) => $q->for($this->settable),
+                fn ($q, $settable) => $q->for($settable),
                 fn ($q) => $q->whereNull('settable_type')->whereNull('settable_id'),
             );
     }

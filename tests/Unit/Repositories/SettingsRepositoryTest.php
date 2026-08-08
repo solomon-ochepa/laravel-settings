@@ -59,6 +59,26 @@ describe('scoping state', function () {
     ]);
 });
 
+describe('config parsing', function () {
+    it('accepts an array for settings.group.default, stringifying scalar entries', function () {
+        config(['settings.group.default' => ['admin', 42, 'user']]);
+
+        expect((new SettingsRepository)->group)->toEqual(['admin', '42', 'user']);
+    });
+
+    it('drops non-scalar entries from an array settings.group.default', function () {
+        config(['settings.group.default' => ['admin', ['nested' => 'array'], 'user']]);
+
+        expect((new SettingsRepository)->group)->toEqual(['admin', 'user']);
+    });
+
+    it('falls back to "default" when settings.group.default is neither a string nor an array', function () {
+        config(['settings.group.default' => 42]);
+
+        expect((new SettingsRepository)->group)->toEqual('default');
+    });
+});
+
 describe('misuse', function () {
     it('for() throws a TypeError for an invalid type', function () {
         expect(fn () => (new SettingsRepository)->for(['not', 'a', 'valid', 'settable']))
