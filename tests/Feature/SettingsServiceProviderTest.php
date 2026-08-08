@@ -9,6 +9,10 @@ use SolomonOchepa\Settings\Models\Setting;
 use SolomonOchepa\Settings\Repositories\SettingsRepository;
 use SolomonOchepa\Settings\SettingsServiceProvider;
 
+it('boot() and register() return void', function (string $method) {
+    expect((new SettingsServiceProvider($this->app))->$method())->toBeNull();
+})->with(['boot', 'register']);
+
 it('binds a new SettingsRepository instance on every resolution', function () {
     // bind(), not singleton(), so state set on one resolution (group, for,
     // flush, ...) must never leak into another.

@@ -2,8 +2,13 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use SolomonOchepa\Settings\Facades\Settings;
 use SolomonOchepa\Settings\Tests\App\Models\User;
+
+it('settings() returns a MorphMany relation', function () {
+    expect(User::factory()->make()->settings())->toBeInstanceOf(MorphMany::class);
+});
 
 it('reads and writes settings through the settable morph columns', function () {
     $user = User::factory()->create();

@@ -94,13 +94,15 @@ class SettingsRepository implements SettingsInterface
 
         $key = $this->cache_key();
 
-        if (Cache::has($key)) {
-            return Cache::get($key);
+        $cached = Cache::get($key);
+
+        if ($cached instanceof Collection) {
+            return $cached;
         }
 
         $data = $this->query()->pluck($this->columns['value'], $this->columns['name']);
 
-        Cache::add($key, $data, $this->cache_ttl);
+        Cache::put($key, $data, $this->cache_ttl);
 
         return $data;
     }
